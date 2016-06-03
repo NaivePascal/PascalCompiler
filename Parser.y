@@ -1329,7 +1329,6 @@ bool check_case_expression(nodeType *expression, nodeType *cases){
 
 void push_back_from_para_type_list(vector<nodeType*> &v, nodeType *p, bool name_or_type){
 	//if(p->opr.oper == PARA_TYPE_LIST){//para_type_list	: var_para_list COLON  simple_type_decl
-		if(name_or_type){ // name
 			nodeType *var_para_list = p->opr.op[0];
 			nodeType *simple_type_decl = p->opr.op[1];
 			nodeType *name_list;
@@ -1338,14 +1337,12 @@ void push_back_from_para_type_list(vector<nodeType*> &v, nodeType *p, bool name_
 			else //para_type_list: val_para_list COLON simple_type_decl
 				name_list = var_para_list;
 
+		if(name_or_type){ // name
 			nodeType *node = name_list;
 			vector<nodeType*> names = flatten(name_list);
 			v.insert(v.end(), names.begin(), names.end());
 		}
 		else{//type
-			nodeType *var_para_list = p->opr.op[0];
-			nodeType *simple_type_decl = p->opr.op[1];
-			nodeType *name_list = var_para_list->opr.op[0];
 			int cnt = 0; //count number of name
 			nodeType *node = name_list;
 			while(true){
