@@ -7,7 +7,6 @@
 #include "pascal.h"
 #include "Lexer.h"
 
-
 int yylex(void);
 void yyerror(char *s);
 nodeType *con(void* value,int type);
@@ -861,7 +860,7 @@ term			: term  MUL  factor
 				|  term  MOD  factor
 				{
 					//$$=opr(MOD,2,$1,$3);
-					if(type_equal(tp(SYS_TYPE_REAL),$1->exp) && type_equal(tp(SYS_TYPE_REAL),$3->exp)){
+					if(type_equal(tp(SYS_TYPE_INTEGER),$1->exp) && type_equal(tp(SYS_TYPE_INTEGER),$3->exp)){
 						nodeType* node = opr(MOD, 2, $1, $3);
 						node->exp = tp(SYS_TYPE_INTEGER);
 						$$ = node;						
@@ -899,6 +898,20 @@ factor			: ID
 					nodeType *node = id($1);
 					nodeType *refer = lookup($1);
 					node->exp = refer;
+					//if it is function
+					if(refer->type==typeOpr && refer->opr.oper == FUNCTION_HEAD){
+						//this function should not have any parameters
+						nodeType* parameters = refer->opr.op[1];
+						if(parameters!=NULL){
+							char messgae[100];
+							sprintf(messgae, "no parameters found for function %s", $1);
+							type_error(messgae);
+						}
+						else{
+							//return type
+							node->exp = refer->opr.op[2];
+						}
+					}
 					$$=node;
 				}
 				|  ID  LP  args_list  RP
@@ -983,26 +996,30 @@ factor			: ID
 				{
 					//$$=opr(NOT,1,$2);
 					//check_not_exp($2->exp);
-					if($2->exp->type == typeType && $2->exp->tp.type==SYS_TYPE_BOOL){
+					if(type_equal(tp(SYS_TYPE_BOOL),$2->exp)){
 						nodeType *node = opr(NOT, 1, $2);
 						node->exp = $2->exp;
 						$$ = node;						
 					}
 					else{
-						type_error("type mismatch");
+						char messgae[100];
+						sprintf(messgae, "Operation \"not\" not supported for type \"%s\" ", type_str($2->exp).data());
+						type_error(messgae);
 					}
 				}  
 				|  MINUS  factor  
 				{
 					//$$=opr(MINUS,1,$2);
 					//check_minus_exp($2->exp);
-					if($2->exp->type == typeType && ($2->exp->tp.type==SYS_TYPE_INTEGER || $2->exp->tp.type==SYS_TYPE_REAL) ){
+					if(type_equal(tp(SYS_TYPE_REAL),$2->exp)||type_equal(tp(SYS_TYPE_INTEGER),$2->exp) ){
 						nodeType* node = opr(MINUS, 1, $2);
 						node->exp = $2->exp;
 						$$ = node;
 					}
 					else{
-						type_error("type mismatch");
+						char messgae[100];
+						sprintf(messgae, "Operation \"minus\" not supported for type \"%s\" ", type_str($2->exp).data());
+						type_error(messgae);
 					}
 				}
 				|  ID  LB  expression  RB
@@ -1047,6 +1064,13 @@ using namespace std;
 	nodeType *type;
 	map<string, nodeType*> record;
 };*/
+bool lookup_in_name_list(char *name, nodeType *name_list);
+bool isSubrange(nodeType *node){
+	return node->type == typeOpr && (
+		node->opr.oper == CONST_NEGATIVE_NEGATIVE||
+		node->opr.oper == CONST_NEGATIVE_POSITIVE||
+		node->opr.oper == CONST_POSITIVE_POSITIVE);
+}
 
 vector<map<string, nodeType*>> symbol_table_stack;
 //vector<map<string, symbol>> Symbol_table_stack;
@@ -1116,8 +1140,18 @@ bool type_equal(nodeType *n1, nodeType *n2){
 			//otherwise
 			return false;
 		}
+		//array of char and string are equal
 		else if(n1->type==typeOpr && n1->opr.op[1]->tp.type==SYS_TYPE_CHAR && n2->type==typeCon &&n2->con.type==STRING)
 			return true;
+		//subrange <- integer 
+		else if(isSubrange(n1)){
+			//
+			return type_equal(tp(SYS_TYPE_INTEGER), n2);
+		}
+		//enumeration <- element
+		else if(n1->type == typeOpr && n1->opr.oper == ENUM && n2->type == typeId){
+			return lookup_in_name_list(n2->id.sValue, n1->opr.op[0]);
+		}
 	}
 
 	if(n1->type == typeType){
@@ -1421,8 +1455,12 @@ vector<nodeType*> flatten(nodeType *root){
 }
 
 bool check_parameters(nodeType *function_head, nodeType* args_list){
+	vector<nodeType*> args;
 	vector<nodeType*> para_types = get_para_types(function_head);
-	vector<nodeType*> args = flatten(args_list);
+	if(args_list->type==typeOpr&&args_list->opr.oper == ARGS_LIST)
+		args = flatten(args_list);
+	else
+		args.push_back(args_list);
 	if(para_types.size()!=args.size()){
 		type_error("parameter number mismatch");
 	}

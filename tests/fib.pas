@@ -6,12 +6,13 @@ var
         j, k : integer;
 begin
         if n = 1 then
-                fib := 1;
-        else if n = 2 then
-                fib := 1;
+                fib := 1
+        else 
+        if n = 2 then
+                fib := 1
         else
                 fib := fib(n-1) + fib(n-2); 
-end
+end;
 begin
         done := 0;
         while done = 0 do begin
@@ -21,8 +22,8 @@ begin
                 else begin
                         write(i);
                         i := fib(i);
-                        write(i)
-                end   
-        end 
+                        write(i);
+                end;  
+        end;
 end.
 

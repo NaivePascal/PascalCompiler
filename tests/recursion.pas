@@ -13,9 +13,9 @@ begin
         x := x - b;
       end;
       gcd := gcd(x,b);
-     end
+     end;
 end;
 begin
    read (x,y);
-   if x>y then write (gcd(x, y))
+   if x>y then write (gcd(x, y));
 end.

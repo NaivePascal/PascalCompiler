@@ -1,38 +1,36 @@
-program whiletest(input, output); 
+program whiletest;
 var
     h,i,j,k,l:integer;
     m,o : array[1..5] of integer;
     n : array[0..4] of real;
     s,t,u,v,x : real;    
 
-function testi(a,b:integer): result integer;
+function testi(a,b:integer):  integer;
 begin
 
 	if a < b then 
 	testi := b
-	else testi := testi(a,b+1)
+	else testi := testi(a,b+1);
 		
-end
+end;
 
-function sum(a,b: real): result real;
+function sum(a,b: real):  real;
 begin
-	sum := a+b
-end
+	sum := a+b;
+end;
 
-function externalsum: result integer;
+function externalsum:  integer;
 begin
-	externalsum := i +j
-end
+	externalsum := i +j;
+end;
 
-function testc(a,b: array[1..5] of integer): result integer;
+function testc(a,b: array[1..5] of integer):  integer;
 begin
-	
-	
 	write(a[1] + b[1]);
 	write(a[2] + b[2]);
 	write(a[3] + b[3]);
-	testc := 500
-end
+	testc := 500;
+end;
 
 
 procedure testb(a,b:integer; c,d,e,f : real );
@@ -42,8 +40,8 @@ begin
 	write(c);
 	write(d);
 	write(e);
-	write(f)
-end
+	write(f);
+end;
     
 begin
 
@@ -87,7 +85,7 @@ while j < 6 do
 	begin
 	 write("j: "j);
 	 write("m[j]: " m[j]);
-	 j := j +1
+	 j := j +1;
 		
 	end;
 	
@@ -96,7 +94,7 @@ while i <= h do
 	begin
 		write("i: " i);
 		write("n[i]: " n[i]);
-		i := i + 1
+		i := i + 1;
 	end;
 	
 write("testi(4,1): "testi(4,1));

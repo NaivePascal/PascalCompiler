@@ -62,6 +62,6 @@ begin
        write(w[i]);
        i := i + 1
      end;
-   write(h,i,x,y,z)
+   write(h,i,x,y,z);
 end.
 
