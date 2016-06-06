@@ -1,6 +1,6 @@
 #ifndef _SYMBOL_H_
 #define _SYMBOL_H_
-#include "pascal.h"
+#include "node.h"
 #include "Parser.h"
 extern nodeType *tp(int i);
 extern int yylineno;
@@ -24,6 +24,8 @@ bool check_parameters(nodeType *function_head, nodeType* parameters);
 vector<nodeType*> get_para_names(nodeType *function_head);
 vector<nodeType*> get_para_types(nodeType *function_head);
 vector<nodeType*> flatten(nodeType *root);
+
+
 
 #include <map>
 #include <string>

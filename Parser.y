@@ -4,7 +4,7 @@
 #include <stdarg.h>
 #include <limits.h>
 #include <iostream>
-#include "pascal.h"
+#include "node.h"
 #include "Lexer.h"
 
 int yylex(void);

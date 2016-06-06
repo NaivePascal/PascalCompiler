@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "Parser.h"
-#include "pascal.h"
+#include "node.h"
 int count = 0;
 char* sIndexTable[256];
 int sIndexNumber(char* s);
