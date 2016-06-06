@@ -2,7 +2,7 @@
 program procTest;
  var a, b : integer;
      x : array [1..5] of real;
-  procedure one (i, j :integer; k : array [1..5] of real);
+  procedure one (i, j :integer);
   var n : integer;
   begin
     n := i + j;
