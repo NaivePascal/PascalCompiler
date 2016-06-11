@@ -55,7 +55,7 @@ void freeNode(nodeType *p) ;
 %token <sysProc> SYS_PROC
 %token <sysFunc> SYS_FUNCT
 
-%token  THEN CONST DO READ EQUAL GOTO WHILE PROGRAM MUL PLUS UNEQUAL DIV MINUS DOT 
+%token  THEN CONST DO READ EQUAL GOTO WHILE MUL PLUS UNEQUAL DIV MINUS DOT 
 %token  CASE PBEGIN LE LB SEMI TO UNTIL DOTDOT RECORD LT COLON RB ARRAY ASSIGN FUNCTION REPEAT END 
 %token  LP FOR ELSE GE VAR RP PROCEDURE IF AND GT OF DOWNTO NOT COMMA TYPE OR MOD 
 
@@ -196,18 +196,22 @@ simple_type_decl: SYS_TYPE  {$$=tp($1);}
 				{
 					//check error : Upper bound of range is less than lower bound
 					$$=opr(CONST_POSITIVE_POSITIVE,2,$1,$3);
+					range_check($$);
 				}
 				|  MINUS  const_value  DOTDOT  const_value
 				{
 					$$=opr(CONST_NEGATIVE_POSITIVE,2,$2,$4);
+					range_check($$);
 				}
 				|  MINUS  const_value  DOTDOT  MINUS  const_value
 				{
 					$$=opr(CONST_NEGATIVE_NEGATIVE,2,$2,$5);
+					range_check($$);
 				}
 				|  ID  DOTDOT  ID
 				{
 					$$=opr(ID_ID,2,$1,$3);
+					range_check($$);
 				}
 				;
 
