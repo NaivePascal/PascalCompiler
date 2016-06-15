@@ -9,7 +9,7 @@
 
 using namespace std;
 
-//#define DEBUG
+#define DEBUG
 
 using namespace std;
 
@@ -53,61 +53,73 @@ enum SimpleType
 	RANGE_T
 };
 
-struct Simple{
+struct Simple {
 	SimpleType type;
 	vector<string> names;//for enum
 	pair<int, int> range; //for range
-	Simple(){}
+	Simple() {}
 
 	Simple(const vector<string> &_names)
-		:type(ENUM_T), names(_names){}
+		:type(ENUM_T), names(_names) {}
 
 	Simple(const pair<int, int> &_range)
-		:type(RANGE_T), range(_range){}
+		:type(RANGE_T), range(_range) {}
 
 	Simple(SimpleType t)
-		:type(t){}
+		:type(t) {}
 
-	string toString(){
-		switch(type){
-			case INT_T:return "int";
-			case CHAR_T:return "char";
-			case REAL_T:return "real";
-			case BOOL_T:return "bool";
-			case ENUM_T:return "enum";
-			case RANGE_T:return "range";
-			default:return "unknown";			
+	string toString() {
+		switch (type) {
+		case INT_T:return "int";
+		case CHAR_T:return "char";
+		case REAL_T:return "real";
+		case BOOL_T:return "bool";
+		case ENUM_T: {
+			string info = "enum[";
+			for (string name : names) {
+				info += name+" ";
+			}
+			info += "]";
+			return info;
+		}
+		case RANGE_T: {
+			char message[20];
+			sprintf(message, "range(%d, %d)", range.first, range.second);
+			string info(message);
+			return info;
+		}
+		default:return "unknown";
 		}
 	}
 };
 
 struct Type;
 
-struct Base{
+struct Base {
 	bool is_array;
 	Simple index;
 	//if it is array
 	Type* element;
-	Base(){}
+	Base() {}
 
 	Base(SimpleType t)
-		:index(t), is_array(false){}
+		:index(t), is_array(false) {}
 
 	//simple type
 	Base(const Simple& t)
-		:index(t), element(NULL), is_array(false){}
+		:index(t), element(NULL), is_array(false) {}
 	//array
 	Base(const Simple& _index, Type *_element)
-		:index(_index), element(_element), is_array(true){}
+		:index(_index), element(_element), is_array(true) {}
 	//down cast to simple
-	Simple toSimple(){
+	Simple toSimple() {
 		return index;
 	}
 
 	string toString();
 };
 
-struct Type{
+struct Type {
 	bool is_record;
 	//Base
 	Base base;
@@ -116,28 +128,28 @@ struct Type{
 	map<string, Type*> record;
 
 	//down cast to simple
-	Simple toSimple(){
+	Simple toSimple() {
 		return base.toSimple();
 	}
 
-	Type(){}
+	Type():is_record(false) {}
 
 	Type(SimpleType t)
-		:base(t), is_record(false){}
+		:base(t), is_record(false) {}
 
 	//base type
 	Type(const Base& _b)
-		:base(_b), is_record(false){}
+		:base(_b), is_record(false) {}
 
 	//record
 	Type(const vector<string>& _fields, const vector<nodeType*> typenodes)
-		:fields(_fields), is_record(true){
-		for (int i = 0; i<fields.size(); i++){
+		:fields(_fields), is_record(true) {
+		for (int i = 0; i < fields.size(); i++) {
 			string name = fields[i];
 			if (record.find(name) == record.end())
 				record[name] = new Type(typenodes[i]);
 			//duplicate names
-			else{
+			else {
 				char message[100];
 				sprintf(message, "duplicate name \"%s\"", name.data());
 				type_error(message);
@@ -146,7 +158,7 @@ struct Type{
 	}
 
 	//convert nodeType to Type
-	Type(const nodeType*node){
+	Type(const nodeType*node) {
 		if (node->type == typeType) {
 			switch (node->tp.type) {
 			case SYS_TYPE_INTEGER:*this = Type(INT_T); break;
@@ -164,15 +176,15 @@ struct Type{
 				// "<enumeration type>"
 				vector<nodeType*> name_nodes = flatten(node->opr.op[0]);
 				vector<string> names(name_nodes.size());
-				for (int i = 0; i<names.size(); i++)
+				for (int i = 0; i < names.size(); i++)
 					names[i] = string(name_nodes[i]->id.sValue);
 				*this = Base(names);
 			}
-			else if (isSubrange(node)){
+			else if (isSubrange(node)) {
 				//"<subrange type>"
 				nodeType *left = node->opr.op[0];
 				nodeType *right = node->opr.op[1];
-				if (node->opr.oper == ID_ID){
+				if (node->opr.oper == ID_ID) {
 					left = lookup(left->id.sValue);
 					right = lookup(right->id.sValue);
 				}
@@ -187,7 +199,7 @@ struct Type{
 				Type* element = new Type(node->opr.op[1]);
 				*this = Base(index, element);
 			}
-			else if (node->opr.oper == RECORD_TYPE_DECL){
+			else if (node->opr.oper == RECORD_TYPE_DECL) {
 				//record
 				vector<string> names;
 				vector<nodeType*> types;
@@ -202,14 +214,14 @@ struct Type{
 			}
 		}
 		else if (node->type == typeCon) {
-			switch(node->con.type){
+			switch (node->con.type) {
 			case INTEGER:*this = Type(INT_T); break;
 			case REAL:*this = Type(REAL_T); break;
 			case CHAR:*this = Type(CHAR_T); break;
 			case BOOL:*this = Type(BOOL_T); break;
-			case STRING:{
+			case STRING: {
 				int size = strlen(node->con.str);
-				pair<int,int> range(0, size-1);
+				pair<int, int> range(0, size - 1);
 				Type *element = new Type(CHAR_T);
 				*this = Base(range, element);
 				break;
@@ -225,16 +237,16 @@ struct Type{
 		//return "unknown";
 	}
 
-	string toString(){
+	string toString() {
 		//if it is record
-		if(is_record){
+		if (is_record) {
 			string info = "record";
-			for(string field:fields){
-				info += "\n\t"+field+":"+record[field]->toString();
+			for (string field : fields) {
+				info += "\n\t" + field + ":" + record[field]->toString();
 			}
 			return info;
 		}
-		else{
+		else {
 			//if it is an array
 			return base.toString();
 		}
@@ -242,31 +254,92 @@ struct Type{
 
 };
 
-string Base::toString(){
-	if(is_array){
+string Base::toString() {
+	if (is_array) {
 		string info = "array";
-		info += " ["+index.toString()+"] ";
+		info += " [" + index.toString() + "] ";
 		info += element->toString();
 		return info;
 	}
-	else{
+	else {
 		return index.toString();
 	}
 }
 
+enum SymbolType {
+	DATA,
+	FUNC,
+	PROC
+};
+
+struct Function {
+	vector<string> parameters;
+	map<string, Type> types;
+	Type returnType;
+
+	string toString() {
+		string info = "<function ";
+		for (string name : parameters) {
+			info += name + ":" + types[name].toString()+" ";
+		}
+		info += ">";
+		return info;
+	}
+};
+
 struct Symbol
 {
+	SymbolType symbolType;
 	nodeType *node;
 	//for intermediate code generation
-	Type type;
+	Type type;//DATA
+	Function func;//FUNC or PROC
+
 	int addr;
 
 	Symbol()
-		:node(NULL){}
+		:node(NULL) {}
 
 	Symbol(nodeType *_node, int _addr)
-		:node(_node), addr(_addr), type(node){}
+		:node(_node), addr(_addr), type(node) {
+		if (node->type == typeOpr && (node->opr.oper == FUNCTION_HEAD|| node->opr.oper == PROCEDURE_HEAD)) {
+			nodeType* para = node;
+			vector<nodeType*> nameNodes = get_para_names(para);
+			vector<nodeType*> typeNodes = get_para_types(para);
+			func.parameters.resize(nameNodes.size());
+			for (int i = 0; i < nameNodes.size(); i++) {
+				string name = string(nameNodes[i]->id.sValue);
+				func.parameters[i] = name;
+				func.types[name] = Type(typeNodes[i]);
+			}
+			if (node->opr.oper == FUNCTION_HEAD) {
+				symbolType = SymbolType::FUNC;
+				func.returnType = Type(node->opr.op[2]);
+			}
+			else
+				symbolType = SymbolType::PROC;
+		}
+		else {
+			symbolType = SymbolType::DATA;
+		}
+	}
 
+	string information() {
+		switch (symbolType)
+		{
+		case DATA:
+			return type.toString();
+		case PROC:
+			return func.toString();
+		case FUNC: {
+			string info = func.toString();
+			string retType = func.returnType.toString();
+			return info + " return:" + retType;
+		}
+		default:
+			return "unknown";
+		}
+	}
 };
 
 struct Scope
@@ -275,11 +348,11 @@ struct Scope
 	map<string, Symbol> symbol_table;
 
 	Scope()
-		:address(0){}
+		:address(0) {}
 
-	void print(){
+	void print() {
 		puts("-------Symbol Table of a Scope------");
-		for(auto iter:symbol_table){
+		for (auto iter : symbol_table) {
 			cout << iter.first << ":" << iter.second.type.toString() << endl;
 		}
 	}
@@ -296,43 +369,43 @@ bool isSubrange(const nodeType *node) {
 		node->opr.oper == ID_ID);
 }
 
-int array_size(nodeType* node){
+int array_size(nodeType* node) {
 	int size = -1;
-	if(node->type == typeType){
+	if (node->type == typeType) {
 		switch (node->tp.type) {
-		case SYS_TYPE_INTEGER:size=65536;
-		case SYS_TYPE_CHAR:size=256;
+		case SYS_TYPE_INTEGER:size = 65536;
+		case SYS_TYPE_CHAR:size = 256;
 		}
 	}
-	else if(node->type == typeId){
+	else if (node->type == typeId) {
 		size = array_size(lookup(node->id.sValue));
 	}
-	else if(node->type == typeOpr){
-		if(node->opr.oper == ENUM){
+	else if (node->type == typeOpr) {
+		if (node->opr.oper == ENUM) {
 			vector<nodeType*> name_nodes = flatten(node->opr.op[0]);
 			return name_nodes.size();
 		}
-		else if(isSubrange(node)){
+		else if (isSubrange(node)) {
 			nodeType*left = node->opr.op[0];
 			nodeType*right = node->opr.op[1];
 
-			if (node->opr.oper==ID_ID){
+			if (node->opr.oper == ID_ID) {
 				left = lookup(left->id.sValue);
 				right = lookup(right->id.sValue);
 			}
 
 			int begin = left->con.integer;
 			int end = right->con.integer;
-			size = end-begin+1;
+			size = end - begin + 1;
 		}
 	}
 
-	if(size==-1)
+	if (size == -1)
 		type_error("array size error");
 	return size;
 }
 
-int type_space(nodeType *node){
+int type_space(nodeType *node) {
 	if (node->type == typeType) {
 		switch (node->tp.type) {
 		case SYS_TYPE_INTEGER:return 4;
@@ -349,7 +422,7 @@ int type_space(nodeType *node){
 		if (node->opr.oper == ENUM) {
 			return 4;
 		}
-		else if (isSubrange(node)){
+		else if (isSubrange(node)) {
 			return 4;
 		}
 		else if (node->opr.oper == ARRAY_TYPE_DECL) {
@@ -359,14 +432,14 @@ int type_space(nodeType *node){
 			int element_size = type_space(node->opr.op[1]);
 			return size*element_size;
 		}
-		else if (node->opr.oper == RECORD_TYPE_DECL){
+		else if (node->opr.oper == RECORD_TYPE_DECL) {
 			//record
 			vector<string> names;
 			vector<nodeType*> types;
 			get_from_field_decl_list(names, types, node->opr.op[0]);
-			int sum=0;
-			for(auto node:types){
-				sum+= type_space(node);
+			int sum = 0;
+			for (auto node : types) {
+				sum += type_space(node);
 			}
 			return sum;
 		}
@@ -380,18 +453,19 @@ int type_space(nodeType *node){
 		}
 	}
 	else if (node->type == typeCon) {
-		switch(node->con.type){
+		switch (node->con.type) {
 		case INTEGER:return 4;
 		case REAL:return 8;
 		case CHAR:return 1;
 		case BOOL:return 1;
-		case STRING:{
+		case STRING: {
 			int size = strlen(node->con.str);
 			return size;
 		}
 		}
 	}
 	else if (node->type == typeSysProc) {
+
 		//"<system procedure>";
 	}
 	else if (node->type == typeSysFunc) {
@@ -405,30 +479,30 @@ void insert(char *name, nodeType* node) {
 	int addr = symbol_table_stack.back().address;
 	map<string, Symbol> &table = symbol_table_stack.back().symbol_table;
 	Symbol newSymbol(node, addr);
-	#ifdef DEBUG
-		puts("----------------------------------");
-		printf("%s\t %s\t relative-address:%d \n", name, type_str(node).data(), addr);
-		printf("Symbol info : %s\n", newSymbol.type.toString().data());
-		puts("----------------------------------");
-	#endif
+#ifdef DEBUG
+	puts("----------------------------------");
+	printf("%s\t %s\t relative-address:%d \n", name, type_str(node).data(), addr);
+	printf("Symbol info : %s\n", newSymbol.information().data());
+	puts("----------------------------------");
+#endif
 	table[name] = newSymbol;
 	//if it is a record
-	if(node->type == typeOpr && node->opr.oper == RECORD_TYPE_DECL){
+	if (node->type == typeOpr && node->opr.oper == RECORD_TYPE_DECL) {
 		//insert its members
 		vector<string> member_names;
 		vector<nodeType*> types;
 		get_from_field_decl_list(member_names, types, node->opr.op[0]);
 		int local_addr = addr;
-		for(int i=0;i<member_names.size();i++){
-			string member = string(name)+"."+member_names[i];
+		for (int i = 0; i < member_names.size(); i++) {
+			string member = string(name) + "." + member_names[i];
 			Symbol s(types[i], local_addr);
 			table[member] = s;
-	#ifdef DEBUG
-		puts("----------------------------------");
-		printf("%s\t %s\t relative-address:%d \n", member.data(), type_str(types[i]).data(), local_addr);
-		printf("Symbol info : %s\n", s.type.toString().data());
-		puts("----------------------------------");
-	#endif			
+#ifdef DEBUG
+			puts("----------------------------------");
+			printf("%s\t %s\t relative-address:%d \n", member.data(), type_str(types[i]).data(), local_addr);
+			printf("Symbol info : %s\n", s.information().data());
+			puts("----------------------------------");
+#endif			
 			local_addr += type_space(types[i]);
 		}
 	}
@@ -470,7 +544,7 @@ nodeType* lookup(string name) {
 		return result;
 }
 
-int lookup_address(string name){
+int lookup_address(string name) {
 	//traverse the stack backwards to find symbol
 	for (auto iter = symbol_table_stack.rbegin(); iter != symbol_table_stack.rend(); iter++) {
 		auto item = iter->symbol_table.find(name);
@@ -578,14 +652,14 @@ string type_str(nodeType *node) {
 		else if (node->opr.oper == ARRAY_TYPE_DECL) {
 			return "array [" + type_str(node->opr.op[0]) + "] of " + type_str(node->opr.op[1]);
 		}
-		else if(node->opr.oper == RECORD_TYPE_DECL){
-			string info ="record [\n";
+		else if (node->opr.oper == RECORD_TYPE_DECL) {
+			string info = "record [\n";
 			vector<string> names;
 			vector<nodeType*> types;
 			get_from_field_decl_list(names, types, node->opr.op[0]);
-			for(int i=0;i<names.size();i++)
-				info+="\t"+names[i]+" "+type_str(types[i])+"\n";
-			info+="\t]";
+			for (int i = 0; i < names.size(); i++)
+				info += "\t" + names[i] + " " + type_str(types[i]) + "\n";
+			info += "\t]";
 			return info;
 		}
 		else if (node->opr.oper == FUNCTION_HEAD) {
@@ -765,7 +839,7 @@ void push_back_from_para_type_list(vector<nodeType*> &v, nodeType *p, bool name_
 				break;
 			}
 		}
-		for (int i = 0; i<cnt; i++)
+		for (int i = 0; i < cnt; i++)
 			v.push_back(simple_type_decl);
 	}
 	//}
@@ -833,7 +907,7 @@ void get_from_field_decl(vector<string> &fields, vector<nodeType*> &types, nodeT
 {
 	vector<nodeType*> name_nodes = flatten(field_decl->opr.op[0]);
 	vector<string> names(name_nodes.size());
-	for (int i = 0; i<name_nodes.size(); i++){
+	for (int i = 0; i < name_nodes.size(); i++) {
 		names[i] = string(name_nodes[i]->id.sValue);
 	}
 	//concatenate
@@ -844,7 +918,7 @@ void get_from_field_decl(vector<string> &fields, vector<nodeType*> &types, nodeT
 
 void get_from_field_decl_list(vector<string> &fields, vector<nodeType*> &types, nodeType*field_decl_list)
 {
-	if (field_decl_list->opr.oper == FIELD_DECL_LIST){
+	if (field_decl_list->opr.oper == FIELD_DECL_LIST) {
 		get_from_field_decl_list(fields, types, field_decl_list->opr.op[0]);
 		get_from_field_decl(fields, types, field_decl_list->opr.op[1]);
 	}
@@ -863,7 +937,7 @@ bool check_parameters(nodeType *function_head, nodeType* args_list) {
 		type_error("parameter number mismatch");
 	}
 	else {
-		for (int i = 0; i<para_types.size(); i++) {
+		for (int i = 0; i < para_types.size(); i++) {
 			nodeType *tocheck = args[i]->exp;
 			if (!type_equal(para_types[i], args[i]->exp)) {
 				char message[100];
@@ -876,26 +950,26 @@ bool check_parameters(nodeType *function_head, nodeType* args_list) {
 
 }
 
-void range_check(nodeType* node){
+void range_check(nodeType* node) {
 	nodeType*left = node->opr.op[0];
 	nodeType*right = node->opr.op[1];
 
-	if (node->opr.oper==ID_ID){
+	if (node->opr.oper == ID_ID) {
 		left = lookup(left->id.sValue);
 		right = lookup(right->id.sValue);
 	}
 
-	if (left->type != typeCon || left->con.type != INTEGER){
+	if (left->type != typeCon || left->con.type != INTEGER) {
 		char message[100];
 		sprintf(message, "\"constant integer\" expected but \"%s\" found", type_str(left).data());
 		type_error(message);
 	}
-	if (right->type != typeCon || right->con.type != INTEGER){
+	if (right->type != typeCon || right->con.type != INTEGER) {
 		char message[100];
 		sprintf(message, "\"constant integer\" expected but \"%s\" found", type_str(right).data());
 		type_error(message);
 	}
-	if (left->con.integer > right->con.integer){
+	if (left->con.integer > right->con.integer) {
 		type_error("the value of begin should not greater than end");
 	}
 }
