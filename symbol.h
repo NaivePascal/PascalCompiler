@@ -91,7 +91,7 @@ struct Base{
 	Base(){}
 
 	Base(SimpleType t)
-		:index(t){}
+		:index(t), is_array(false){}
 
 	//simple type
 	Base(const Simple& t)
@@ -123,7 +123,7 @@ struct Type{
 	Type(){}
 
 	Type(SimpleType t)
-		:base(t){}
+		:base(t), is_record(false){}
 
 	//base type
 	Type(const Base& _b)
@@ -317,8 +317,8 @@ int array_size(nodeType* node){
 			nodeType*right = node->opr.op[1];
 
 			if (node->opr.oper==ID_ID){
-				nodeType* left = lookup(left->id.sValue);
-				nodeType* right = lookup(right->id.sValue);
+				left = lookup(left->id.sValue);
+				right = lookup(right->id.sValue);
 			}
 
 			int begin = left->con.integer;
@@ -407,7 +407,7 @@ void insert(char *name, nodeType* node) {
 	Symbol newSymbol(node, addr);
 	#ifdef DEBUG
 		puts("----------------------------------");
-		printf("%s\t %s\t relative-address:%d \n", name, type_str(node).data());
+		printf("%s\t %s\t relative-address:%d \n", name, type_str(node).data(), addr);
 		printf("Symbol info : %s\n", newSymbol.type.toString().data());
 		puts("----------------------------------");
 	#endif
@@ -881,8 +881,8 @@ void range_check(nodeType* node){
 	nodeType*right = node->opr.op[1];
 
 	if (node->opr.oper==ID_ID){
-		nodeType* left = lookup(left->id.sValue);
-		nodeType* right = lookup(right->id.sValue);
+		left = lookup(left->id.sValue);
+		right = lookup(right->id.sValue);
 	}
 
 	if (left->type != typeCon || left->con.type != INTEGER){
