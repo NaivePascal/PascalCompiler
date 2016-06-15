@@ -5,8 +5,11 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <iostream>
 
-#define DEBUG
+using namespace std;
+
+//#define DEBUG
 
 using namespace std;
 
@@ -41,6 +44,7 @@ int lookup_address(string name);
 
 enum SimpleType
 {
+	UNKNOWN,
 	INT_T,
 	CHAR_T,
 	REAL_T,
@@ -63,6 +67,18 @@ struct Simple{
 
 	Simple(SimpleType t)
 		:type(t){}
+
+	string toString(){
+		switch(type){
+			case INT_T:return "int";
+			case CHAR_T:return "char";
+			case REAL_T:return "real";
+			case BOOL_T:return "bool";
+			case ENUM_T:return "enum";
+			case RANGE_T:return "range";
+			default:return "unknown";			
+		}
+	}
 };
 
 struct Type;
@@ -71,7 +87,7 @@ struct Base{
 	bool is_array;
 	Simple index;
 	//if it is array
-	const Type* element;
+	Type* element;
 	Base(){}
 
 	Base(SimpleType t)
@@ -81,12 +97,14 @@ struct Base{
 	Base(const Simple& t)
 		:index(t), element(NULL), is_array(false){}
 	//array
-	Base(const Simple& _index, const Type *_element)
+	Base(const Simple& _index, Type *_element)
 		:index(_index), element(_element), is_array(true){}
 	//down cast to simple
 	Simple toSimple(){
 		return index;
 	}
+
+	string toString();
 };
 
 struct Type{
@@ -207,7 +225,34 @@ struct Type{
 		//return "unknown";
 	}
 
+	string toString(){
+		//if it is record
+		if(is_record){
+			string info = "record";
+			for(string field:fields){
+				info += "\n\t"+field+":"+record[field]->toString();
+			}
+			return info;
+		}
+		else{
+			//if it is an array
+			return base.toString();
+		}
+	}
+
 };
+
+string Base::toString(){
+	if(is_array){
+		string info = "array";
+		info += " ["+index.toString()+"] ";
+		info += element->toString();
+		return info;
+	}
+	else{
+		return index.toString();
+	}
+}
 
 struct Symbol
 {
@@ -221,6 +266,7 @@ struct Symbol
 
 	Symbol(nodeType *_node, int _addr)
 		:node(_node), addr(_addr), type(node){}
+
 };
 
 struct Scope
@@ -230,6 +276,13 @@ struct Scope
 
 	Scope()
 		:address(0){}
+
+	void print(){
+		puts("-------Symbol Table of a Scope------");
+		for(auto iter:symbol_table){
+			cout << iter.first << ":" << iter.second.type.toString() << endl;
+		}
+	}
 };
 
 vector<Scope> symbol_table_stack;
@@ -351,12 +404,14 @@ int type_space(nodeType *node){
 void insert(char *name, nodeType* node) {
 	int addr = symbol_table_stack.back().address;
 	map<string, Symbol> &table = symbol_table_stack.back().symbol_table;
+	Symbol newSymbol(node, addr);
 	#ifdef DEBUG
 		puts("----------------------------------");
-		printf("%s\t %s\t relative-address:%d \n", name, type_str(node).data(), addr);
+		printf("%s\t %s\t relative-address:%d \n", name, type_str(node).data());
+		printf("Symbol info : %s\n", newSymbol.type.toString().data());
 		puts("----------------------------------");
 	#endif
-	table[name] = Symbol(node, addr);
+	table[name] = newSymbol;
 	//if it is a record
 	if(node->type == typeOpr && node->opr.oper == RECORD_TYPE_DECL){
 		//insert its members
@@ -365,12 +420,13 @@ void insert(char *name, nodeType* node) {
 		get_from_field_decl_list(member_names, types, node->opr.op[0]);
 		int local_addr = addr;
 		for(int i=0;i<member_names.size();i++){
-
 			string member = string(name)+"."+member_names[i];
-			table[member] = Symbol(types[i], local_addr);
+			Symbol s(types[i], local_addr);
+			table[member] = s;
 	#ifdef DEBUG
 		puts("----------------------------------");
 		printf("%s\t %s\t relative-address:%d \n", member.data(), type_str(types[i]).data(), local_addr);
+		printf("Symbol info : %s\n", s.type.toString().data());
 		puts("----------------------------------");
 	#endif			
 			local_addr += type_space(types[i]);
