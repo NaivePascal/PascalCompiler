@@ -42,6 +42,8 @@ void get_from_field_decl_list(vector<string> &fields, vector<nodeType*> &types, 
 //for intermediate code generation
 int lookup_address(string name);
 
+void printSymbolTable();
+
 enum SimpleType
 {
 	UNKNOWN,
@@ -361,6 +363,8 @@ struct Scope
 };
 
 vector<Scope> symbol_table_stack;
+int level = 0;
+string message;
 
 bool lookup_in_name_list(char *name, nodeType *name_list);
 bool isSubrange(const nodeType *node) {
@@ -482,10 +486,13 @@ void insert(char *name, nodeType* node) {
 	map<string, Symbol> &table = symbol_table_stack.back().symbol_table;
 	Symbol newSymbol(node, addr);
 #ifdef DEBUG
-	puts("----------------------------------");
-	printf("%s\t %s\t relative-address:%d \n", name, type_str(node).data(), addr);
-	printf("Symbol info : %s\n", newSymbol.information().data());
-	puts("----------------------------------");
+	//puts("----------------------------------");
+	//printf("%s\t %s\t relative-address:%d \n", name, type_str(node).data(), addr);
+	//printf("Symbol info : %s\n", newSymbol.information().data());
+	//puts("----------------------------------");
+	char info[200];
+	sprintf(info, "%s\t %s\t%d\t%d \n", name, type_str(node).data(), addr, level);
+	message += string(info);
 #endif
 	table[name] = newSymbol;
 	//if it is a record
@@ -500,10 +507,13 @@ void insert(char *name, nodeType* node) {
 			Symbol s(types[i], local_addr);
 			table[member] = s;
 #ifdef DEBUG
-			puts("----------------------------------");
-			printf("%s\t %s\t relative-address:%d \n", member.data(), type_str(types[i]).data(), local_addr);
-			printf("Symbol info : %s\n", s.information().data());
-			puts("----------------------------------");
+			//puts("----------------------------------");
+			//printf("%s\t %s\t relative-address:%d \n", member.data(), type_str(types[i]).data(), local_addr);
+			//printf("Symbol info : %s\n", s.information().data());
+			//puts("----------------------------------");
+			char info[200];
+			sprintf(info, "%s\t %s\t%d \t%d \n", member.data(), type_str(types[i]).data(), local_addr, level);
+			message += string(info);
 #endif			
 			local_addr += type_space(types[i]);
 		}
@@ -516,6 +526,7 @@ void insert(char *name, nodeType* node) {
 
 void enter_scope() {
 	symbol_table_stack.push_back(Scope());
+	level++;
 }
 
 void exit_scope() {
@@ -975,5 +986,12 @@ void range_check(nodeType* node) {
 		type_error("the value of begin should not greater than end");
 	}
 }
+
+void printSymbolTable() {
+	cout << "------Symbol Table----" << endl;
+	cout << "name\t type info \toffset\t level" << endl;
+	cout << message << endl;
+}
+
 
 #endif // !_SYMBOL_H_

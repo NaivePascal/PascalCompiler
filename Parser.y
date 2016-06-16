@@ -95,6 +95,7 @@ nodeType* syntaxTree;
 program			: program_head  routine  DOT{
 					syntaxTree = $$ = $2;
 					printTree(syntaxTree);
+					printSymbolTable();
 					//hdj
 					//program ends, exit scope
 					exit_scope();
