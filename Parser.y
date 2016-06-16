@@ -26,6 +26,8 @@ void freeNode(nodeType *p) ;
 #include "symbol.h"
 //symbol table end
 
+nodeType* syntaxTree;
+
 %}
 
 %output  "Parser.cpp"
@@ -87,7 +89,8 @@ void freeNode(nodeType *p) ;
 %%
 
 program			: program_head  routine  DOT{
-					$$ = $2;
+					syntaxTree = $$ = $2;
+					
 					//hdj
 					//program ends, exit scope
 					exit_scope();
@@ -124,7 +127,7 @@ const_part		: CONST const_expr_list{
 				;											
 					
 const_expr_list : const_expr_list  const_expr  SEMI	{
-					$$ = opr(SEMI,2,$1,$2);
+					$$ = opr(CONST_EXPR_LIST,2,$1,$2);
 }	
 				|  const_expr  SEMI{
 					$$ = $1;
@@ -164,7 +167,7 @@ type_part		: TYPE type_decl_list{
 				;
 
 type_decl_list	: type_decl_list  type_definition{
-					$$=opr(SEMI,2,$1,$2);
+					$$=opr(TYPE_DECL_LIST,2,$1,$2);
 }
 				|  type_definition{
 					$$=$1;
