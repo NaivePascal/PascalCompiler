@@ -461,6 +461,13 @@ assign_stmt		: ID  ASSIGN  expression
 							type_error(message);
 						}
 					}
+					//it is a record
+					else if(node->type == typeOpr && node->opr.oper == RECORD_TYPE_DECL){
+						if(!type_equal(_lookup($1), $3->exp)){
+							sprintf(message, "\"%s\" expected but \"%s\" found", type_str(node).data(), type_str($3->exp).data());
+							type_error(message);
+						}
+					}
 					else{
 						sprintf(message, "Variable identifier expected");
 							type_error(message);

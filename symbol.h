@@ -57,6 +57,7 @@ struct Simple {
 	SimpleType type;
 	vector<string> names;//for enum
 	pair<int, int> range; //for range
+
 	Simple() {}
 
 	Simple(const vector<string> &_names)
@@ -100,6 +101,7 @@ struct Base {
 	Simple index;
 	//if it is array
 	Type* element;
+
 	Base() {}
 
 	Base(SimpleType t)
@@ -572,7 +574,7 @@ bool type_equal(nodeType *n1, nodeType *n2) {
 			return false;
 		}
 		//array of char and string are equal
-		else if (n1->type == typeOpr && n1->opr.op[1]->tp.type == SYS_TYPE_CHAR && n2->type == typeCon &&n2->con.type == STRING)
+		else if (n1->type == typeOpr && n1->opr.nops>=2 && n1->opr.op[1]->type==typeType &&n1->opr.op[1]->tp.type == SYS_TYPE_CHAR && n2->type == typeCon &&n2->con.type == STRING)
 			return true;
 		//subrange <- integer 
 		else if (isSubrange(n1)) {
