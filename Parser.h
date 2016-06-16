@@ -159,7 +159,26 @@ extern int yydebug;
     CONST_NEGATIVE_POSITIVE = 369,
     CONST_NEGATIVE_NEGATIVE = 370,
     ENUM = 371,
-    ID_ID = 372
+    ID_ID = 372,
+    TRUE = 373,
+    FALSE = 374,
+    SYS_CON_TRUE = 375,
+    SYS_CON_FALSE = 376,
+    SYS_CON_MAXINT = 377,
+    SYS_TYPE_INTEGER = 378,
+    SYS_TYPE_REAL = 379,
+    SYS_TYPE_CHAR = 380,
+    SYS_TYPE_BOOL = 381,
+    SYS_FUNCT_ABS = 382,
+    SYS_FUNCT_CHR = 383,
+    SYS_FUNCT_ODD = 384,
+    SYS_FUNCT_ORD = 385,
+    SYS_FUNCT_PRED = 386,
+    SYS_FUNCT_SQR = 387,
+    SYS_FUNCT_SQRT = 388,
+    SYS_FUNCT_SUCC = 389,
+    SYS_PROC_WRITE = 390,
+    SYS_PROC_WRITELN = 391
   };
 #endif
 
@@ -168,7 +187,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 34 "Parser.y" /* yacc.c:1915  */
+#line 36 "Parser.y" /* yacc.c:1915  */
 
 	int iValue;
 	char* sValue;
@@ -181,7 +200,7 @@ union YYSTYPE
 	int sysFunc;
 	struct nodeTypeTag* nodetype;
 
-#line 185 "Parser.h" /* yacc.c:1915  */
+#line 204 "Parser.h" /* yacc.c:1915  */
 };
 
 typedef union YYSTYPE YYSTYPE;

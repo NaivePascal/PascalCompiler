@@ -4,29 +4,10 @@
 using namespace std;
 
 #include <vector>
+#include <map>
+#include <vector>
 
-#define TRUE 1
-#define FALSE 0
-#define SYS_CON_TRUE 0
-#define SYS_CON_FALSE 1
-#define SYS_CON_MAXINT 2
 
-#define SYS_TYPE_INTEGER 0
-#define SYS_TYPE_REAL 1
-#define SYS_TYPE_CHAR 2
-#define SYS_TYPE_BOOL 3
-
-#define SYS_FUNCT_ABS 0
-#define SYS_FUNCT_CHR 1
-#define SYS_FUNCT_ODD 2
-#define SYS_FUNCT_ORD 3
-#define SYS_FUNCT_PRED 4
-#define SYS_FUNCT_SQR 5
-#define SYS_FUNCT_SQRT 6
-#define SYS_FUNCT_SUCC 7
-
-#define SYS_PROC_WRITE 0
-#define SYS_PROC_WRITELN 1
 
 typedef enum { typeCon, typeId, typeOpr, typeType, typeSysProc, typeSysFunc, typeLink } nodeEnum;
 //typedef enum {INT_D, CHAR_D, STRING_D, ARRAY_D, ARR}
@@ -97,11 +78,17 @@ typedef struct nodeTypeTag {
 		oprNodeType opr;        /* operators */ //records//arrays//enum
 		typeNodeType tp;       /*types*/ 
 		sysProcNodeType sysProc;
-		sysProcNodeType sysFunc;
+		sysFuncNodeType sysFunc;
 	};
 
 
 } nodeType;
 
 
+class SymbolTag{
+	public:
+		map<int,string> table;
+		SymbolTag();
+};
+void printTree(nodeType* tree);
 #endif

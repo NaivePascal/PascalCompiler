@@ -73,6 +73,10 @@ nodeType* syntaxTree;
 %token SUB_ROUTINE BOOL CONST_POSITIVE_POSITIVE CONST_NEGATIVE_POSITIVE CONST_NEGATIVE_NEGATIVE
 %token ENUM ID_ID
 
+%token TRUE FALSE SYS_CON_TRUE SYS_CON_FALSE SYS_CON_MAXINT SYS_TYPE_INTEGER SYS_TYPE_REAL SYS_TYPE_CHAR
+%token SYS_TYPE_BOOL SYS_FUNCT_ABS SYS_FUNCT_CHR SYS_FUNCT_ODD SYS_FUNCT_ORD SYS_FUNCT_PRED
+%token SYS_FUNCT_SQR SYS_FUNCT_SQRT SYS_FUNCT_SUCC SYS_PROC_WRITE SYS_PROC_WRITELN
+
 %type <nodetype> program routine routine_head  const_part const_expr_list const_expr
 %type <nodetype> const_value type_part type_decl_list type_definition type_decl
 %type <nodetype> simple_type_decl array_type_decl record_type_decl field_decl_list
@@ -90,7 +94,7 @@ nodeType* syntaxTree;
 
 program			: program_head  routine  DOT{
 					syntaxTree = $$ = $2;
-					
+					printTree(syntaxTree);
 					//hdj
 					//program ends, exit scope
 					exit_scope();
@@ -147,10 +151,10 @@ const_value		: INTEGER  {$$ = con(&($1),INTEGER);}
 				|  STRING  {$$ = con(($1),STRING);}
 				|  SYS_CON {
 					if($1==SYS_CON_TRUE){
-						int value = TRUE;
+						int value = true;
 						$$ = con(&value,BOOL);
 					}else if($1==SYS_CON_FALSE){
-						int value = FALSE;
+						int value = false;
 						$$ = con(&value,BOOL);
 					}else if($1==SYS_CON_MAXINT){
 						int value = INT_MAX;
@@ -1170,6 +1174,6 @@ int main(int argc, char *argv[]) {
 
 	yyparse();
 	//printf("Number of  pairs of BEGIN and END: %d\n", count);
-
+	
 	return 0;
 }

@@ -1,6 +1,6 @@
 # Makefile
 
-FILES	= Lexer.cpp Parser.cpp
+FILES	= Lexer.cpp Parser.cpp node.cpp
 CC	= g++
 CFLAGS	= -std=c++11 -Wno-write-strings -Wno-deprecated-register
 
