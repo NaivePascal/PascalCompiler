@@ -150,8 +150,7 @@ SymbolTag::SymbolTag(){
 
 void printTreeImpl(nodeType* tree, int& count);
 void printTreeNode(const string& s, int count);
-string intToString(int i);
-string doubleToString(int i);
+
 
 string intToString(int i){
     stringstream  ss;
@@ -160,7 +159,7 @@ string intToString(int i){
     ss>>ret;
     return ret;
 }
-string doubleToString(int i){
+string doubleToString(double i){
     stringstream  ss;
     ss << i;
     string ret;
