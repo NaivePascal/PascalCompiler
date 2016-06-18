@@ -6,6 +6,7 @@
 #include <iostream>
 #include "node.h"
 #include "Lexer.h"
+#include "Midcode.h"
 
 int yylex(void);
 void yyerror(char *s);
@@ -71,7 +72,7 @@ nodeType* syntaxTree;
 %token IF_STMT ELSE_CLAUSE REPEAT_STMT WHILE_STMT FOR_STMT CASE_STMT CASE_EXPR_LIST
 %token CASE_EXPR GOTO_STMT EXPRESSION_LIST EXPRESSION EXPR TERM FACTOR ARGS_LIST
 %token SUB_ROUTINE BOOL CONST_POSITIVE_POSITIVE CONST_NEGATIVE_POSITIVE CONST_NEGATIVE_NEGATIVE
-%token ENUM ID_ID
+%token ENUM ID_ID LABEL
 
 %token TRUE FALSE SYS_CON_TRUE SYS_CON_FALSE SYS_CON_MAXINT SYS_TYPE_INTEGER SYS_TYPE_REAL SYS_TYPE_CHAR
 %token SYS_TYPE_BOOL SYS_FUNCT_ABS SYS_FUNCT_CHR SYS_FUNCT_ODD SYS_FUNCT_ORD SYS_FUNCT_PRED
@@ -94,8 +95,11 @@ nodeType* syntaxTree;
 
 program			: program_head  routine  DOT{
 					syntaxTree = $$ = $2;
+					
 					printTree(syntaxTree);
 					printSymbolTable();
+					Gen_Drive(syntaxTree, "output.txt");
+
 					//hdj
 					//program ends, exit scope
 					exit_scope();
@@ -648,7 +652,7 @@ case_expr		: const_value  COLON  stmt  SEMI
 				;
 
 goto_stmt		: GOTO  INTEGER
-				{$$=con(&($2),INTEGER);}
+				{$$=opr(GOTO,1,con(&($2),INTEGER));}
 				;
 
 expression_list : expression_list  COMMA  expression
@@ -1175,6 +1179,5 @@ int main(int argc, char *argv[]) {
 
 	yyparse();
 	//printf("Number of  pairs of BEGIN and END: %d\n", count);
-	
 	return 0;
 }

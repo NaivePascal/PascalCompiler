@@ -16,7 +16,7 @@ end;
 begin
         done := 0;
         while done = 0 do begin
-                read(i);
+                i:=1;
                 if i = 0 then
                         done := 1
                 else begin
