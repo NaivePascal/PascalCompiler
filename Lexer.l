@@ -91,7 +91,7 @@ NQUOTE [^']
 {V}{A}{R} return VAR;
 {W}{H}{I}{L}{E} return WHILE;
 
-[a-zA-Z]([a-zA-Z0-9])* {
+[a-zA-Z]([a-zA-Z0-9_])* {
 	//yylval.sIndex=sIndexNumber(yytext);
 	yylval.sValue = (char*)malloc(strlen(yytext)+1);
 	strcpy(yylval.sValue,yytext); 

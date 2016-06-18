@@ -653,6 +653,7 @@ case_expr		: const_value  COLON  stmt  SEMI
 
 goto_stmt		: GOTO  INTEGER
 				{$$=opr(GOTO,1,con(&($2),INTEGER));}
+
 				;
 
 expression_list : expression_list  COMMA  expression

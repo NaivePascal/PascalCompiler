@@ -11,7 +11,6 @@ string intToString(int i);
 //string doubleToString(double i);
 
 
-
 typedef enum { typeCon, typeId, typeOpr, typeType, typeSysProc, typeSysFunc, typeLink } nodeEnum;
 //typedef enum {INT_D, CHAR_D, STRING_D, ARRAY_D, ARR}
 
