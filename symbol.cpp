@@ -160,7 +160,7 @@ int type_space(nodeType *node) {
 #include "TargetCode.h"
 void insert(char *name, nodeType* node) {
 	//test data section
-	declare(name, node);
+	//declare(name, node);
 
 	int addr = symbol_table_stack.back().address;
 	map<string, Symbol> &table = symbol_table_stack.back().symbol_table;
