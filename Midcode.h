@@ -22,8 +22,9 @@ typedef enum{
 	PARAM, CALL,
 }opt;*/
 
-#define PARAM 256
-#define CALL 257
+#define PARAM 113
+#define CALL 114
+#define CALLEE 115
 
 ///The 3-address-code arg structure
 typedef struct{

@@ -87,6 +87,7 @@ Arg GenOpr(nodeType* pnode){
         case ROUTINE_HEAD:
 			GenOpr(child[1]);
 			GenOpr(child[2]);
+			GenOpr(child[3]);
         break;
         case CONST_EXPR:
 			arg1 = GenId(child[0]);
@@ -162,6 +163,8 @@ Arg GenOpr(nodeType* pnode){
 		case FUNCTION_DECL:{
 			GenOpr(child[0]);
 			GenOpr(child[1]);
+			tmp.op = CALLEE;
+			midcode_list.push_back(tmp);
 			string key = child[0]->opr.op[0]->id.sValue;
 			gen_symbol_table.insert({ key, exit_scope() });
 		}break;
@@ -170,7 +173,7 @@ Arg GenOpr(nodeType* pnode){
 			insert(child[0]->id.sValue, pnode);
 			enter_scope();
 			tmps = 0;
-			tmp.op = PROC;
+			tmp.op = FUNCTION;
 			tmp.arg1 = GenId(child[0]);
 			midcode_list.push_back(tmp);
 			//hdj:insert function parameters
@@ -183,6 +186,8 @@ Arg GenOpr(nodeType* pnode){
 		case PROCEDURE_DECL:{
 			GenOpr(child[0]);
 			GenOpr(child[1]);
+			tmp.op = CALLEE;
+			midcode_list.push_back(tmp);
 			string key = child[0]->opr.op[0]->id.sValue;
 			gen_symbol_table.insert({ key, exit_scope() });
 		}break;
@@ -191,7 +196,7 @@ Arg GenOpr(nodeType* pnode){
 			insert(child[0]->id.sValue, pnode);
 			enter_scope();
 			tmps = 0;
-			tmp.op = PROC;
+			tmp.op = PROCEDURE;
 			tmp.arg1 = GenId(child[0]);
 			midcode_list.push_back(tmp);
 			//hdj:insert function parameters
@@ -237,13 +242,13 @@ Arg GenOpr(nodeType* pnode){
 		case PROC_STMT:
 			//No parameter
 			if (pnode->opr.nops == 1){
-				tmp.op = PROC;
+				tmp.op = PROCEDURE;
 				tmp.arg1 = GenCode(child[0]);
 			}
 			//Parameter require
 			else if (pnode->opr.nops == 2){
 				GenCode(child[1]);//args_list | sysproc
-				tmp.op = PROC;
+				tmp.op = PROCEDURE;
 				tmp.arg1 = GenCode(child[0]);
 			}
 			midcode_list.push_back(tmp);
@@ -410,6 +415,12 @@ Arg GenOpr(nodeType* pnode){
 			tmp.op = CALL;
 			GenCode(child[1]);
 			tmp.arg1 = GenId(child[0]);
+			//############################################
+			tmp.result.id = "tmp" + intToString(tmps);
+			tmps++;
+			//tmp.result.type = get_return_type();
+			tmp.result.temporary = true;
+			//############################################
 			midcode_list.push_back(tmp);
         break;
         /// Array Index

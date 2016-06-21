@@ -1841,7 +1841,7 @@ yyreduce:
   case 6:
 /* Line 1792 of yacc.c  */
 #line 126 "Parser.y"
-    {(yyval.nodetype) = opr(ROUTINE_HEAD,3,(yyvsp[(2) - (5)].nodetype),(yyvsp[(3) - (5)].nodetype),(yyvsp[(4) - (5)].nodetype));}
+    {(yyval.nodetype) = opr(ROUTINE_HEAD,4,(yyvsp[(2) - (5)].nodetype),(yyvsp[(3) - (5)].nodetype),(yyvsp[(4) - (5)].nodetype),(yyvsp[(5) - (5)].nodetype));}
     break;
 
   case 8:
@@ -3002,7 +3002,7 @@ yyreduce:
 #line 922 "Parser.y"
     {
 					//$$=opr(LP,2,$1,$3);
-					nodeType *node = opr(LP, 2, (yyvsp[(1) - (4)].sValue), (yyvsp[(3) - (4)].nodetype));
+					nodeType *node = opr(LP, 2, id((yyvsp[(1) - (4)].sValue)), (yyvsp[(3) - (4)].nodetype));
 					nodeType *refer = lookup((yyvsp[(1) - (4)].sValue));
 					if(refer->type==typeOpr && refer->opr.oper == FUNCTION_HEAD){
 						//check parameters!!!
