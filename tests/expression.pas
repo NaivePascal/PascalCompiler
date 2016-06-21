@@ -7,7 +7,7 @@ program expressionTest;
    b := a * 4;
    c := (b + a)/ 2;
    
-   write(a,b,c)
+   write(a,b,c);
    
    
  end.

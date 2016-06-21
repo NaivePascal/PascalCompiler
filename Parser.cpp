@@ -73,6 +73,7 @@
 #include "node.h"
 #include "Lexer.h"
 #include "Midcode.h"
+#include "TargetCode.h"
 
 int yylex(void);
 void yyerror(char *s);
@@ -97,7 +98,7 @@ nodeType* syntaxTree;
 
 
 /* Line 371 of yacc.c  */
-#line 101 "Parser.cpp"
+#line 102 "Parser.cpp"
 
 # ifndef YY_NULL
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -276,7 +277,7 @@ extern int yydebug;
 typedef union YYSTYPE
 {
 /* Line 387 of yacc.c  */
-#line 37 "Parser.y"
+#line 38 "Parser.y"
 
 	int iValue;
 	char* sValue;
@@ -291,7 +292,7 @@ typedef union YYSTYPE
 
 
 /* Line 387 of yacc.c  */
-#line 295 "Parser.cpp"
+#line 296 "Parser.cpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -319,7 +320,7 @@ int yyparse ();
 /* Copy the second part of user declarations.  */
 
 /* Line 390 of yacc.c  */
-#line 323 "Parser.cpp"
+#line 324 "Parser.cpp"
 
 #ifdef short
 # undef short
@@ -673,19 +674,19 @@ static const yytype_int16 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    96,    96,   109,   117,   121,   125,   129,   131,   135,
-     138,   141,   145,   153,   154,   155,   156,   157,   171,   175,
-     178,   181,   185,   195,   196,   197,   199,   200,   202,   207,
-     213,   218,   223,   230,   251,   258,   260,   263,   267,   271,
-     277,   279,   282,   284,   286,   308,   310,   312,   314,   317,
-     320,   333,   350,   358,   373,   376,   379,   381,   385,   389,
-     396,   400,   404,   408,   412,   415,   418,   420,   424,   426,
-     428,   430,   432,   434,   436,   438,   440,   444,   488,   518,
-     553,   555,   557,   559,   561,   565,   575,   577,   579,   591,
-     603,   628,   629,   631,   641,   643,   648,   650,   654,   659,
-     661,   665,   680,   695,   710,   725,   740,   755,   759,   782,
-     802,   818,   824,   844,   864,   878,   893,   899,   921,   939,
-     946,   988,   995,   999,  1014,  1029,  1038,  1049,  1051
+       0,    97,    97,   112,   120,   124,   128,   132,   134,   138,
+     141,   144,   148,   156,   157,   158,   159,   160,   174,   178,
+     181,   184,   188,   198,   199,   200,   202,   203,   205,   210,
+     216,   221,   226,   233,   254,   261,   263,   266,   270,   274,
+     280,   282,   285,   287,   289,   311,   313,   315,   317,   320,
+     323,   336,   353,   361,   376,   379,   382,   384,   388,   392,
+     399,   403,   407,   411,   415,   418,   421,   423,   427,   429,
+     431,   433,   435,   437,   439,   441,   443,   447,   491,   521,
+     556,   558,   560,   562,   564,   568,   578,   580,   582,   594,
+     606,   631,   632,   634,   644,   646,   651,   653,   657,   662,
+     664,   668,   683,   698,   713,   728,   743,   758,   762,   785,
+     805,   821,   827,   847,   867,   881,   896,   902,   924,   942,
+     949,   991,   998,  1002,  1017,  1032,  1041,  1052,  1054
 };
 #endif
 
@@ -1802,13 +1803,15 @@ yyreduce:
     {
         case 2:
 /* Line 1792 of yacc.c  */
-#line 96 "Parser.y"
+#line 97 "Parser.y"
     {
 					syntaxTree = (yyval.nodetype) = (yyvsp[(2) - (3)].nodetype);
 					
 					printTree(syntaxTree);
 					printSymbolTable();
 					Gen_Drive(syntaxTree, "output.txt");
+					puts("---Target Code---");
+					printTargetCode(cout);
 
 					//hdj
 					//program ends, exit scope
@@ -1818,7 +1821,7 @@ yyreduce:
 
   case 3:
 /* Line 1792 of yacc.c  */
-#line 110 "Parser.y"
+#line 113 "Parser.y"
     {
 					//hdj
 					//program starts, enter new scope
@@ -1828,25 +1831,25 @@ yyreduce:
 
   case 4:
 /* Line 1792 of yacc.c  */
-#line 118 "Parser.y"
+#line 121 "Parser.y"
     {(yyval.nodetype) = opr(ROUTINE,2,(yyvsp[(1) - (2)].nodetype),(yyvsp[(2) - (2)].nodetype));}
     break;
 
   case 5:
 /* Line 1792 of yacc.c  */
-#line 122 "Parser.y"
+#line 125 "Parser.y"
     {(yyval.nodetype) = opr(ROUTINE,2,(yyvsp[(1) - (2)].nodetype),(yyvsp[(2) - (2)].nodetype));}
     break;
 
   case 6:
 /* Line 1792 of yacc.c  */
-#line 126 "Parser.y"
-    {(yyval.nodetype) = opr(ROUTINE_HEAD,3,(yyvsp[(2) - (5)].nodetype),(yyvsp[(3) - (5)].nodetype),(yyvsp[(4) - (5)].nodetype));}
+#line 129 "Parser.y"
+    {(yyval.nodetype) = opr(ROUTINE_HEAD,4,(yyvsp[(2) - (5)].nodetype),(yyvsp[(3) - (5)].nodetype),(yyvsp[(4) - (5)].nodetype),(yyvsp[(5) - (5)].nodetype));}
     break;
 
   case 8:
 /* Line 1792 of yacc.c  */
-#line 131 "Parser.y"
+#line 134 "Parser.y"
     {
 					(yyval.nodetype)=(yyvsp[(2) - (2)].nodetype);
 }
@@ -1854,13 +1857,13 @@ yyreduce:
 
   case 9:
 /* Line 1792 of yacc.c  */
-#line 135 "Parser.y"
+#line 138 "Parser.y"
     {(yyval.nodetype) = NULL;}
     break;
 
   case 10:
 /* Line 1792 of yacc.c  */
-#line 138 "Parser.y"
+#line 141 "Parser.y"
     {
 					(yyval.nodetype) = opr(CONST_EXPR_LIST,2,(yyvsp[(1) - (3)].nodetype),(yyvsp[(2) - (3)].nodetype));
 }
@@ -1868,7 +1871,7 @@ yyreduce:
 
   case 11:
 /* Line 1792 of yacc.c  */
-#line 141 "Parser.y"
+#line 144 "Parser.y"
     {
 					(yyval.nodetype) = (yyvsp[(1) - (2)].nodetype);
 				}
@@ -1876,7 +1879,7 @@ yyreduce:
 
   case 12:
 /* Line 1792 of yacc.c  */
-#line 145 "Parser.y"
+#line 148 "Parser.y"
     {
 					(yyval.nodetype) = opr(CONST_EXPR,2,id((yyvsp[(1) - (3)].sValue)),(yyvsp[(3) - (3)].nodetype));
 					//example:
@@ -1888,31 +1891,31 @@ yyreduce:
 
   case 13:
 /* Line 1792 of yacc.c  */
-#line 153 "Parser.y"
+#line 156 "Parser.y"
     {(yyval.nodetype) = con(&((yyvsp[(1) - (1)].iValue)),INTEGER);}
     break;
 
   case 14:
 /* Line 1792 of yacc.c  */
-#line 154 "Parser.y"
+#line 157 "Parser.y"
     {(yyval.nodetype) = con(&((yyvsp[(1) - (1)].rValue)),REAL);}
     break;
 
   case 15:
 /* Line 1792 of yacc.c  */
-#line 155 "Parser.y"
+#line 158 "Parser.y"
     {(yyval.nodetype) = con(&((yyvsp[(1) - (1)].cValue)),CHAR);}
     break;
 
   case 16:
 /* Line 1792 of yacc.c  */
-#line 156 "Parser.y"
+#line 159 "Parser.y"
     {(yyval.nodetype) = con(((yyvsp[(1) - (1)].sValue)),STRING);}
     break;
 
   case 17:
 /* Line 1792 of yacc.c  */
-#line 157 "Parser.y"
+#line 160 "Parser.y"
     {
 					if((yyvsp[(1) - (1)].syscon)==SYS_CON_TRUE){
 						int value = true;
@@ -1929,7 +1932,7 @@ yyreduce:
 
   case 18:
 /* Line 1792 of yacc.c  */
-#line 171 "Parser.y"
+#line 174 "Parser.y"
     {
 					(yyval.nodetype) = (yyvsp[(2) - (2)].nodetype);
 				}
@@ -1937,13 +1940,13 @@ yyreduce:
 
   case 19:
 /* Line 1792 of yacc.c  */
-#line 175 "Parser.y"
+#line 178 "Parser.y"
     {(yyval.nodetype)=NULL;}
     break;
 
   case 20:
 /* Line 1792 of yacc.c  */
-#line 178 "Parser.y"
+#line 181 "Parser.y"
     {
 					(yyval.nodetype)=opr(TYPE_DECL_LIST,2,(yyvsp[(1) - (2)].nodetype),(yyvsp[(2) - (2)].nodetype));
 }
@@ -1951,7 +1954,7 @@ yyreduce:
 
   case 21:
 /* Line 1792 of yacc.c  */
-#line 181 "Parser.y"
+#line 184 "Parser.y"
     {
 					(yyval.nodetype)=(yyvsp[(1) - (1)].nodetype);
 				}
@@ -1959,7 +1962,7 @@ yyreduce:
 
   case 22:
 /* Line 1792 of yacc.c  */
-#line 185 "Parser.y"
+#line 188 "Parser.y"
     {
 					(yyval.nodetype)=opr(TYPE_DEFINITION,2,(yyvsp[(1) - (4)].sValue),(yyvsp[(3) - (4)].nodetype));
 
@@ -1973,37 +1976,37 @@ yyreduce:
 
   case 23:
 /* Line 1792 of yacc.c  */
-#line 195 "Parser.y"
+#line 198 "Parser.y"
     {(yyval.nodetype)=(yyvsp[(1) - (1)].nodetype);}
     break;
 
   case 24:
 /* Line 1792 of yacc.c  */
-#line 196 "Parser.y"
+#line 199 "Parser.y"
     {(yyval.nodetype)=(yyvsp[(1) - (1)].nodetype);}
     break;
 
   case 25:
 /* Line 1792 of yacc.c  */
-#line 197 "Parser.y"
+#line 200 "Parser.y"
     {(yyval.nodetype)=(yyvsp[(1) - (1)].nodetype);}
     break;
 
   case 26:
 /* Line 1792 of yacc.c  */
-#line 199 "Parser.y"
+#line 202 "Parser.y"
     {(yyval.nodetype)=tp((yyvsp[(1) - (1)].sysType));}
     break;
 
   case 27:
 /* Line 1792 of yacc.c  */
-#line 201 "Parser.y"
+#line 204 "Parser.y"
     {(yyval.nodetype)=id((yyvsp[(1) - (1)].sValue));}
     break;
 
   case 28:
 /* Line 1792 of yacc.c  */
-#line 203 "Parser.y"
+#line 206 "Parser.y"
     {
 					//$$=$2;
 					(yyval.nodetype)=opr(ENUM, 1, (yyvsp[(2) - (3)].nodetype));
@@ -2012,7 +2015,7 @@ yyreduce:
 
   case 29:
 /* Line 1792 of yacc.c  */
-#line 208 "Parser.y"
+#line 211 "Parser.y"
     {
 					//check error : Upper bound of range is less than lower bound
 					(yyval.nodetype)=opr(CONST_POSITIVE_POSITIVE,2,(yyvsp[(1) - (3)].nodetype),(yyvsp[(3) - (3)].nodetype));
@@ -2022,7 +2025,7 @@ yyreduce:
 
   case 30:
 /* Line 1792 of yacc.c  */
-#line 214 "Parser.y"
+#line 217 "Parser.y"
     {
 					(yyval.nodetype)=opr(CONST_NEGATIVE_POSITIVE,2,(yyvsp[(2) - (4)].nodetype),(yyvsp[(4) - (4)].nodetype));
 					range_check((yyval.nodetype));
@@ -2031,7 +2034,7 @@ yyreduce:
 
   case 31:
 /* Line 1792 of yacc.c  */
-#line 219 "Parser.y"
+#line 222 "Parser.y"
     {
 					(yyval.nodetype)=opr(CONST_NEGATIVE_NEGATIVE,2,(yyvsp[(2) - (5)].nodetype),(yyvsp[(5) - (5)].nodetype));
 					range_check((yyval.nodetype));
@@ -2040,7 +2043,7 @@ yyreduce:
 
   case 32:
 /* Line 1792 of yacc.c  */
-#line 224 "Parser.y"
+#line 227 "Parser.y"
     {
 					(yyval.nodetype)=opr(ID_ID,2,(yyvsp[(1) - (3)].sValue),(yyvsp[(3) - (3)].sValue));
 					range_check((yyval.nodetype));
@@ -2049,7 +2052,7 @@ yyreduce:
 
   case 33:
 /* Line 1792 of yacc.c  */
-#line 231 "Parser.y"
+#line 234 "Parser.y"
     {
 					(yyval.nodetype)=opr(ARRAY_TYPE_DECL,2,(yyvsp[(3) - (6)].nodetype),(yyvsp[(6) - (6)].nodetype));
 					//type check
@@ -2072,7 +2075,7 @@ yyreduce:
 
   case 34:
 /* Line 1792 of yacc.c  */
-#line 252 "Parser.y"
+#line 255 "Parser.y"
     {
 					//$$=$2;
 					(yyval.nodetype)=opr(RECORD_TYPE_DECL, 1, (yyvsp[(2) - (3)].nodetype));
@@ -2081,25 +2084,25 @@ yyreduce:
 
   case 35:
 /* Line 1792 of yacc.c  */
-#line 259 "Parser.y"
+#line 262 "Parser.y"
     {(yyval.nodetype)=opr(FIELD_DECL_LIST,2,(yyvsp[(1) - (2)].nodetype),(yyvsp[(2) - (2)].nodetype));}
     break;
 
   case 36:
 /* Line 1792 of yacc.c  */
-#line 260 "Parser.y"
+#line 263 "Parser.y"
     {(yyval.nodetype)=(yyvsp[(1) - (1)].nodetype);}
     break;
 
   case 37:
 /* Line 1792 of yacc.c  */
-#line 264 "Parser.y"
+#line 267 "Parser.y"
     {(yyval.nodetype)=opr(FIELD_DECL,2,(yyvsp[(1) - (4)].nodetype),(yyvsp[(3) - (4)].nodetype));}
     break;
 
   case 38:
 /* Line 1792 of yacc.c  */
-#line 268 "Parser.y"
+#line 271 "Parser.y"
     {
 					(yyval.nodetype)=opr(NAME_LIST,2,(yyvsp[(1) - (3)].nodetype),id((yyvsp[(3) - (3)].sValue)));
 				}
@@ -2107,7 +2110,7 @@ yyreduce:
 
   case 39:
 /* Line 1792 of yacc.c  */
-#line 272 "Parser.y"
+#line 275 "Parser.y"
     {
 					(yyval.nodetype)=id((yyvsp[(1) - (1)].sValue));
 				}
@@ -2115,31 +2118,31 @@ yyreduce:
 
   case 40:
 /* Line 1792 of yacc.c  */
-#line 277 "Parser.y"
+#line 280 "Parser.y"
     {(yyval.nodetype)=(yyvsp[(2) - (2)].nodetype);}
     break;
 
   case 41:
 /* Line 1792 of yacc.c  */
-#line 279 "Parser.y"
+#line 282 "Parser.y"
     {(yyval.nodetype)=NULL;}
     break;
 
   case 42:
 /* Line 1792 of yacc.c  */
-#line 283 "Parser.y"
+#line 286 "Parser.y"
     {(yyval.nodetype)=opr(VAR_DECL_LIST,2,(yyvsp[(1) - (2)].nodetype),(yyvsp[(2) - (2)].nodetype));}
     break;
 
   case 43:
 /* Line 1792 of yacc.c  */
-#line 284 "Parser.y"
+#line 287 "Parser.y"
     {(yyval.nodetype)=(yyvsp[(1) - (1)].nodetype);}
     break;
 
   case 44:
 /* Line 1792 of yacc.c  */
-#line 287 "Parser.y"
+#line 290 "Parser.y"
     {
 					(yyval.nodetype)=opr(VAR_DECL,2,(yyvsp[(1) - (4)].nodetype),(yyvsp[(3) - (4)].nodetype));
 					//just one name
@@ -2163,37 +2166,37 @@ yyreduce:
 
   case 45:
 /* Line 1792 of yacc.c  */
-#line 309 "Parser.y"
+#line 312 "Parser.y"
     {(yyval.nodetype)=opr(ROUTINE_PART,2,(yyvsp[(1) - (2)].nodetype),(yyvsp[(2) - (2)].nodetype));}
     break;
 
   case 46:
 /* Line 1792 of yacc.c  */
-#line 311 "Parser.y"
+#line 314 "Parser.y"
     {(yyval.nodetype)=opr(ROUTINE_PART,2,(yyvsp[(1) - (2)].nodetype),(yyvsp[(2) - (2)].nodetype));}
     break;
 
   case 47:
 /* Line 1792 of yacc.c  */
-#line 313 "Parser.y"
+#line 316 "Parser.y"
     {(yyval.nodetype)=opr(ROUTINE_PART,1,(yyvsp[(1) - (1)].nodetype));}
     break;
 
   case 48:
 /* Line 1792 of yacc.c  */
-#line 315 "Parser.y"
+#line 318 "Parser.y"
     {(yyval.nodetype)=opr(ROUTINE_PART,1,(yyvsp[(1) - (1)].nodetype));}
     break;
 
   case 49:
 /* Line 1792 of yacc.c  */
-#line 317 "Parser.y"
+#line 320 "Parser.y"
     {(yyval.nodetype)=NULL;}
     break;
 
   case 50:
 /* Line 1792 of yacc.c  */
-#line 321 "Parser.y"
+#line 324 "Parser.y"
     {
 				//hdj:function overloading is not supported yet
 				//example:
@@ -2208,7 +2211,7 @@ yyreduce:
 
   case 51:
 /* Line 1792 of yacc.c  */
-#line 334 "Parser.y"
+#line 337 "Parser.y"
     {
 					nodeType* node = opr(FUNCTION_HEAD,3,id((yyvsp[(2) - (5)].sValue)),(yyvsp[(3) - (5)].nodetype),(yyvsp[(5) - (5)].nodetype));
 					(yyval.nodetype)= node;
@@ -2227,7 +2230,7 @@ yyreduce:
 
   case 52:
 /* Line 1792 of yacc.c  */
-#line 351 "Parser.y"
+#line 354 "Parser.y"
     {
 					opr(PROCEDURE_DECL,2,(yyvsp[(1) - (4)].nodetype),(yyvsp[(3) - (4)].nodetype));
 					// a procedure is finished, now exit its scope
@@ -2237,7 +2240,7 @@ yyreduce:
 
   case 53:
 /* Line 1792 of yacc.c  */
-#line 359 "Parser.y"
+#line 362 "Parser.y"
     {
 					nodeType* node = opr(PROCEDURE_HEAD,2,id((yyvsp[(2) - (3)].sValue)),(yyvsp[(3) - (3)].nodetype));
 					(yyval.nodetype)=node;
@@ -2254,31 +2257,31 @@ yyreduce:
 
   case 54:
 /* Line 1792 of yacc.c  */
-#line 374 "Parser.y"
+#line 377 "Parser.y"
     {(yyval.nodetype)=(yyvsp[(2) - (3)].nodetype);}
     break;
 
   case 55:
 /* Line 1792 of yacc.c  */
-#line 376 "Parser.y"
+#line 379 "Parser.y"
     {(yyval.nodetype)=NULL;}
     break;
 
   case 56:
 /* Line 1792 of yacc.c  */
-#line 380 "Parser.y"
+#line 383 "Parser.y"
     {(yyval.nodetype)=opr(PARA_DECL_LIST,2,(yyvsp[(1) - (3)].nodetype),(yyvsp[(3) - (3)].nodetype));}
     break;
 
   case 57:
 /* Line 1792 of yacc.c  */
-#line 382 "Parser.y"
+#line 385 "Parser.y"
     {(yyval.nodetype)=(yyvsp[(1) - (1)].nodetype);}
     break;
 
   case 58:
 /* Line 1792 of yacc.c  */
-#line 386 "Parser.y"
+#line 389 "Parser.y"
     {
 					(yyval.nodetype)=opr(PARA_TYPE_LIST,2,(yyvsp[(1) - (3)].nodetype),(yyvsp[(3) - (3)].nodetype));
 				}
@@ -2286,7 +2289,7 @@ yyreduce:
 
   case 59:
 /* Line 1792 of yacc.c  */
-#line 390 "Parser.y"
+#line 393 "Parser.y"
     {
 					//$$=$1;
 					(yyval.nodetype)=opr(PARA_TYPE_LIST,2,(yyvsp[(1) - (3)].nodetype),(yyvsp[(3) - (3)].nodetype));
@@ -2295,109 +2298,109 @@ yyreduce:
 
   case 60:
 /* Line 1792 of yacc.c  */
-#line 397 "Parser.y"
+#line 400 "Parser.y"
     {(yyval.nodetype)=opr(VAR_PARA_LIST,1,(yyvsp[(2) - (2)].nodetype));}
     break;
 
   case 61:
 /* Line 1792 of yacc.c  */
-#line 401 "Parser.y"
+#line 404 "Parser.y"
     {(yyval.nodetype)=(yyvsp[(1) - (1)].nodetype);}
     break;
 
   case 62:
 /* Line 1792 of yacc.c  */
-#line 405 "Parser.y"
+#line 408 "Parser.y"
     {(yyval.nodetype)=(yyvsp[(1) - (1)].nodetype);}
     break;
 
   case 63:
 /* Line 1792 of yacc.c  */
-#line 409 "Parser.y"
+#line 412 "Parser.y"
     {(yyval.nodetype)=(yyvsp[(2) - (3)].nodetype);}
     break;
 
   case 64:
 /* Line 1792 of yacc.c  */
-#line 413 "Parser.y"
+#line 416 "Parser.y"
     {(yyval.nodetype)=opr(STMT_LIST,2,(yyvsp[(1) - (3)].nodetype),(yyvsp[(2) - (3)].nodetype));}
     break;
 
   case 65:
 /* Line 1792 of yacc.c  */
-#line 415 "Parser.y"
+#line 418 "Parser.y"
     {(yyval.nodetype)=NULL;}
     break;
 
   case 66:
 /* Line 1792 of yacc.c  */
-#line 419 "Parser.y"
+#line 422 "Parser.y"
     {(yyval.nodetype)=opr(COLON,2,con(&((yyvsp[(1) - (3)].iValue)),INTEGER),(yyvsp[(3) - (3)].nodetype));}
     break;
 
   case 67:
 /* Line 1792 of yacc.c  */
-#line 421 "Parser.y"
+#line 424 "Parser.y"
     {(yyval.nodetype)=(yyvsp[(1) - (1)].nodetype);}
     break;
 
   case 68:
 /* Line 1792 of yacc.c  */
-#line 425 "Parser.y"
+#line 428 "Parser.y"
     {(yyval.nodetype)=(yyvsp[(1) - (1)].nodetype);}
     break;
 
   case 69:
 /* Line 1792 of yacc.c  */
-#line 427 "Parser.y"
+#line 430 "Parser.y"
     {(yyval.nodetype)=(yyvsp[(1) - (1)].nodetype);}
     break;
 
   case 70:
 /* Line 1792 of yacc.c  */
-#line 429 "Parser.y"
+#line 432 "Parser.y"
     {(yyval.nodetype)=(yyvsp[(1) - (1)].nodetype);}
     break;
 
   case 71:
 /* Line 1792 of yacc.c  */
-#line 431 "Parser.y"
+#line 434 "Parser.y"
     {(yyval.nodetype)=(yyvsp[(1) - (1)].nodetype);}
     break;
 
   case 72:
 /* Line 1792 of yacc.c  */
-#line 433 "Parser.y"
+#line 436 "Parser.y"
     {(yyval.nodetype)=(yyvsp[(1) - (1)].nodetype);}
     break;
 
   case 73:
 /* Line 1792 of yacc.c  */
-#line 435 "Parser.y"
+#line 438 "Parser.y"
     {(yyval.nodetype)=(yyvsp[(1) - (1)].nodetype);}
     break;
 
   case 74:
 /* Line 1792 of yacc.c  */
-#line 437 "Parser.y"
+#line 440 "Parser.y"
     {(yyval.nodetype)=(yyvsp[(1) - (1)].nodetype);}
     break;
 
   case 75:
 /* Line 1792 of yacc.c  */
-#line 439 "Parser.y"
+#line 442 "Parser.y"
     {(yyval.nodetype)=(yyvsp[(1) - (1)].nodetype);}
     break;
 
   case 76:
 /* Line 1792 of yacc.c  */
-#line 441 "Parser.y"
+#line 444 "Parser.y"
     {(yyval.nodetype)=(yyvsp[(1) - (1)].nodetype);}
     break;
 
   case 77:
 /* Line 1792 of yacc.c  */
-#line 445 "Parser.y"
+#line 448 "Parser.y"
     {
 					(yyval.nodetype)=opr(ASSIGN,2,id((yyvsp[(1) - (3)].sValue)),(yyvsp[(3) - (3)].nodetype));
 					nodeType *check = (yyvsp[(3) - (3)].nodetype);
@@ -2445,7 +2448,7 @@ yyreduce:
 
   case 78:
 /* Line 1792 of yacc.c  */
-#line 489 "Parser.y"
+#line 492 "Parser.y"
     {
 					(yyval.nodetype)=opr(ASSIGN,3,id((yyvsp[(1) - (6)].sValue)),(yyvsp[(3) - (6)].nodetype),(yyvsp[(6) - (6)].nodetype));
 					//type check
@@ -2479,7 +2482,7 @@ yyreduce:
 
   case 79:
 /* Line 1792 of yacc.c  */
-#line 519 "Parser.y"
+#line 522 "Parser.y"
     {
 
 					(yyval.nodetype)=opr(ASSIGN,3,id((yyvsp[(1) - (5)].sValue)),id((yyvsp[(3) - (5)].sValue)),(yyvsp[(5) - (5)].nodetype));
@@ -2515,37 +2518,37 @@ yyreduce:
 
   case 80:
 /* Line 1792 of yacc.c  */
-#line 554 "Parser.y"
+#line 557 "Parser.y"
     {(yyval.nodetype)=opr(PROC_STMT,1,id((yyvsp[(1) - (1)].sValue)));}
     break;
 
   case 81:
 /* Line 1792 of yacc.c  */
-#line 556 "Parser.y"
+#line 559 "Parser.y"
     {(yyval.nodetype)=opr(PROC_STMT,2,id((yyvsp[(1) - (4)].sValue)),(yyvsp[(3) - (4)].nodetype));}
     break;
 
   case 82:
 /* Line 1792 of yacc.c  */
-#line 558 "Parser.y"
+#line 561 "Parser.y"
     {(yyval.nodetype)=opr(PROC_STMT,1,sysProc((yyvsp[(1) - (1)].sysProc)));}
     break;
 
   case 83:
 /* Line 1792 of yacc.c  */
-#line 560 "Parser.y"
+#line 563 "Parser.y"
     {(yyval.nodetype)=opr(PROC_STMT,2,sysProc((yyvsp[(1) - (4)].sysProc)),(yyvsp[(3) - (4)].nodetype));}
     break;
 
   case 84:
 /* Line 1792 of yacc.c  */
-#line 562 "Parser.y"
+#line 565 "Parser.y"
     {(yyval.nodetype)=opr(READ,1,(yyvsp[(3) - (4)].nodetype));}
     break;
 
   case 85:
 /* Line 1792 of yacc.c  */
-#line 566 "Parser.y"
+#line 569 "Parser.y"
     {
 					(yyval.nodetype)=opr(IF,3,(yyvsp[(2) - (5)].nodetype),(yyvsp[(4) - (5)].nodetype),(yyvsp[(5) - (5)].nodetype));
 					//check if condition(expression) is boolean
@@ -2559,19 +2562,19 @@ yyreduce:
 
   case 86:
 /* Line 1792 of yacc.c  */
-#line 576 "Parser.y"
+#line 579 "Parser.y"
     {(yyval.nodetype)=(yyvsp[(2) - (2)].nodetype);}
     break;
 
   case 87:
 /* Line 1792 of yacc.c  */
-#line 577 "Parser.y"
+#line 580 "Parser.y"
     {(yyval.nodetype)=NULL;}
     break;
 
   case 88:
 /* Line 1792 of yacc.c  */
-#line 580 "Parser.y"
+#line 583 "Parser.y"
     {
 					(yyval.nodetype)=opr(REPEAT,2,(yyvsp[(2) - (4)].nodetype),(yyvsp[(4) - (4)].nodetype));
 					//type check: until expression should be boolean
@@ -2585,7 +2588,7 @@ yyreduce:
 
   case 89:
 /* Line 1792 of yacc.c  */
-#line 592 "Parser.y"
+#line 595 "Parser.y"
     {
 					(yyval.nodetype)=opr(WHILE,2,(yyvsp[(2) - (4)].nodetype),(yyvsp[(4) - (4)].nodetype));	
 					//check while condition (expression) is boolean
@@ -2599,7 +2602,7 @@ yyreduce:
 
   case 90:
 /* Line 1792 of yacc.c  */
-#line 604 "Parser.y"
+#line 607 "Parser.y"
     {
 					//type check:id-expression
 					nodeType *node = lookup((yyvsp[(2) - (8)].sValue));
@@ -2627,7 +2630,7 @@ yyreduce:
 
   case 93:
 /* Line 1792 of yacc.c  */
-#line 632 "Parser.y"
+#line 635 "Parser.y"
     {
 					(yyval.nodetype)=opr(CASE,2,(yyvsp[(2) - (5)].nodetype),(yyvsp[(4) - (5)].nodetype));
 					//type check:expression--case_expr
@@ -2639,49 +2642,49 @@ yyreduce:
 
   case 94:
 /* Line 1792 of yacc.c  */
-#line 642 "Parser.y"
+#line 645 "Parser.y"
     {(yyval.nodetype)=opr(CASE_EXPR_LIST,2,(yyvsp[(1) - (2)].nodetype),(yyvsp[(2) - (2)].nodetype));}
     break;
 
   case 95:
 /* Line 1792 of yacc.c  */
-#line 644 "Parser.y"
+#line 647 "Parser.y"
     {(yyval.nodetype)=(yyvsp[(1) - (1)].nodetype);}
     break;
 
   case 96:
 /* Line 1792 of yacc.c  */
-#line 649 "Parser.y"
+#line 652 "Parser.y"
     {(yyval.nodetype)=opr(CASE_EXPR,2,(yyvsp[(1) - (4)].nodetype),(yyvsp[(3) - (4)].nodetype));}
     break;
 
   case 97:
 /* Line 1792 of yacc.c  */
-#line 651 "Parser.y"
+#line 654 "Parser.y"
     {(yyval.nodetype)=opr(CASE_EXPR,2,id((yyvsp[(1) - (4)].sValue)),(yyvsp[(3) - (4)].nodetype));}
     break;
 
   case 98:
 /* Line 1792 of yacc.c  */
-#line 655 "Parser.y"
+#line 658 "Parser.y"
     {(yyval.nodetype)=opr(GOTO,1,con(&((yyvsp[(2) - (2)].iValue)),INTEGER));}
     break;
 
   case 99:
 /* Line 1792 of yacc.c  */
-#line 660 "Parser.y"
+#line 663 "Parser.y"
     {(yyval.nodetype)=opr(EXPRESSION_LIST,2,(yyvsp[(1) - (3)].nodetype),(yyvsp[(3) - (3)].nodetype));}
     break;
 
   case 100:
 /* Line 1792 of yacc.c  */
-#line 662 "Parser.y"
+#line 665 "Parser.y"
     {(yyval.nodetype)=(yyvsp[(1) - (1)].nodetype);}
     break;
 
   case 101:
 /* Line 1792 of yacc.c  */
-#line 666 "Parser.y"
+#line 669 "Parser.y"
     {
 					//$$=opr(GE,2,$1,$3);
 					if(( type_equal(tp(SYS_TYPE_REAL),(yyvsp[(1) - (3)].nodetype)->exp)||type_equal(tp(SYS_TYPE_INTEGER),(yyvsp[(1) - (3)].nodetype)->exp) ) 
@@ -2700,7 +2703,7 @@ yyreduce:
 
   case 102:
 /* Line 1792 of yacc.c  */
-#line 681 "Parser.y"
+#line 684 "Parser.y"
     {
 					//$$=opr(GT,2,$1,$3);
 					if(( type_equal(tp(SYS_TYPE_REAL),(yyvsp[(1) - (3)].nodetype)->exp)||type_equal(tp(SYS_TYPE_INTEGER),(yyvsp[(1) - (3)].nodetype)->exp) ) 
@@ -2719,7 +2722,7 @@ yyreduce:
 
   case 103:
 /* Line 1792 of yacc.c  */
-#line 696 "Parser.y"
+#line 699 "Parser.y"
     {
 					//$$=opr(LE,2,$1,$3);
 					if(( type_equal(tp(SYS_TYPE_REAL),(yyvsp[(1) - (3)].nodetype)->exp)||type_equal(tp(SYS_TYPE_INTEGER),(yyvsp[(1) - (3)].nodetype)->exp) ) 
@@ -2738,7 +2741,7 @@ yyreduce:
 
   case 104:
 /* Line 1792 of yacc.c  */
-#line 711 "Parser.y"
+#line 714 "Parser.y"
     {
 					//$$=opr(LT,2,$1,$3);
 					if(( type_equal(tp(SYS_TYPE_REAL),(yyvsp[(1) - (3)].nodetype)->exp)||type_equal(tp(SYS_TYPE_INTEGER),(yyvsp[(1) - (3)].nodetype)->exp) ) 
@@ -2757,7 +2760,7 @@ yyreduce:
 
   case 105:
 /* Line 1792 of yacc.c  */
-#line 726 "Parser.y"
+#line 729 "Parser.y"
     {
 					//$$=opr(EQUAL,2,$1,$3);
 					if(( type_equal(tp(SYS_TYPE_REAL),(yyvsp[(1) - (3)].nodetype)->exp)||type_equal(tp(SYS_TYPE_INTEGER),(yyvsp[(1) - (3)].nodetype)->exp) ) 
@@ -2776,7 +2779,7 @@ yyreduce:
 
   case 106:
 /* Line 1792 of yacc.c  */
-#line 741 "Parser.y"
+#line 744 "Parser.y"
     {
 					//$$=opr(UNEQUAL,2,$1,$3);
 					if(( type_equal(tp(SYS_TYPE_REAL),(yyvsp[(1) - (3)].nodetype)->exp)||type_equal(tp(SYS_TYPE_INTEGER),(yyvsp[(1) - (3)].nodetype)->exp) ) 
@@ -2795,13 +2798,13 @@ yyreduce:
 
   case 107:
 /* Line 1792 of yacc.c  */
-#line 756 "Parser.y"
+#line 759 "Parser.y"
     {(yyval.nodetype)=(yyvsp[(1) - (1)].nodetype);}
     break;
 
   case 108:
 /* Line 1792 of yacc.c  */
-#line 760 "Parser.y"
+#line 763 "Parser.y"
     {
 					//$$=opr(PLUS,2,$1,$3);
 					nodeType *check1 = (yyvsp[(1) - (3)].nodetype);
@@ -2828,7 +2831,7 @@ yyreduce:
 
   case 109:
 /* Line 1792 of yacc.c  */
-#line 783 "Parser.y"
+#line 786 "Parser.y"
     {
 					//$$=opr(MINUS,2,$1,$3);
 					if(( type_equal(tp(SYS_TYPE_REAL),(yyvsp[(1) - (3)].nodetype)->exp)||type_equal(tp(SYS_TYPE_INTEGER),(yyvsp[(1) - (3)].nodetype)->exp) ) 
@@ -2852,7 +2855,7 @@ yyreduce:
 
   case 110:
 /* Line 1792 of yacc.c  */
-#line 803 "Parser.y"
+#line 806 "Parser.y"
     {
 					//$$=opr(OR,2,$1,$3);
 					nodeType *check1 = (yyvsp[(1) - (3)].nodetype);
@@ -2872,7 +2875,7 @@ yyreduce:
 
   case 111:
 /* Line 1792 of yacc.c  */
-#line 819 "Parser.y"
+#line 822 "Parser.y"
     {
 					(yyval.nodetype)=(yyvsp[(1) - (1)].nodetype);
 				}
@@ -2880,7 +2883,7 @@ yyreduce:
 
   case 112:
 /* Line 1792 of yacc.c  */
-#line 825 "Parser.y"
+#line 828 "Parser.y"
     {
 					//$$=opr(MUL,2,$1,$3);
 					if(( type_equal(tp(SYS_TYPE_REAL),(yyvsp[(1) - (3)].nodetype)->exp)||type_equal(tp(SYS_TYPE_INTEGER),(yyvsp[(1) - (3)].nodetype)->exp) ) 
@@ -2904,7 +2907,7 @@ yyreduce:
 
   case 113:
 /* Line 1792 of yacc.c  */
-#line 845 "Parser.y"
+#line 848 "Parser.y"
     {
 					//$$=opr(DIV,2,$1,$3);
 					if(( type_equal(tp(SYS_TYPE_REAL),(yyvsp[(1) - (3)].nodetype)->exp)||type_equal(tp(SYS_TYPE_INTEGER),(yyvsp[(1) - (3)].nodetype)->exp) ) 
@@ -2928,7 +2931,7 @@ yyreduce:
 
   case 114:
 /* Line 1792 of yacc.c  */
-#line 865 "Parser.y"
+#line 868 "Parser.y"
     {
 					//$$=opr(MOD,2,$1,$3);
 					if(type_equal(tp(SYS_TYPE_INTEGER),(yyvsp[(1) - (3)].nodetype)->exp) && type_equal(tp(SYS_TYPE_INTEGER),(yyvsp[(3) - (3)].nodetype)->exp)){
@@ -2946,7 +2949,7 @@ yyreduce:
 
   case 115:
 /* Line 1792 of yacc.c  */
-#line 879 "Parser.y"
+#line 882 "Parser.y"
     {
 					//$$=opr(AND,2,$1,$3);
 					//if($1->exp->tp.type == SYS_TYPE_BOOL && $3->exp->tp.type == SYS_TYPE_BOOL){
@@ -2965,7 +2968,7 @@ yyreduce:
 
   case 116:
 /* Line 1792 of yacc.c  */
-#line 894 "Parser.y"
+#line 897 "Parser.y"
     {
 					(yyval.nodetype)=(yyvsp[(1) - (1)].nodetype);
 				}
@@ -2973,7 +2976,7 @@ yyreduce:
 
   case 117:
 /* Line 1792 of yacc.c  */
-#line 900 "Parser.y"
+#line 903 "Parser.y"
     {
 					//$$=id($1);
 					nodeType *node = id((yyvsp[(1) - (1)].sValue));
@@ -2999,10 +3002,10 @@ yyreduce:
 
   case 118:
 /* Line 1792 of yacc.c  */
-#line 922 "Parser.y"
+#line 925 "Parser.y"
     {
 					//$$=opr(LP,2,$1,$3);
-					nodeType *node = opr(LP, 2, (yyvsp[(1) - (4)].sValue), (yyvsp[(3) - (4)].nodetype));
+					nodeType *node = opr(LP, 2, id((yyvsp[(1) - (4)].sValue)), (yyvsp[(3) - (4)].nodetype));
 					nodeType *refer = lookup((yyvsp[(1) - (4)].sValue));
 					if(refer->type==typeOpr && refer->opr.oper == FUNCTION_HEAD){
 						//check parameters!!!
@@ -3021,7 +3024,7 @@ yyreduce:
 
   case 119:
 /* Line 1792 of yacc.c  */
-#line 940 "Parser.y"
+#line 943 "Parser.y"
     {
 					//$$=sysFunc($1);
 					nodeType *node=sysFunc((yyvsp[(1) - (1)].sysFunc));
@@ -3032,7 +3035,7 @@ yyreduce:
 
   case 120:
 /* Line 1792 of yacc.c  */
-#line 947 "Parser.y"
+#line 950 "Parser.y"
     {
 					//$$=opr(SYS_FUNCT,2,$1,$3);
 					//..never check input type now
@@ -3078,7 +3081,7 @@ yyreduce:
 
   case 121:
 /* Line 1792 of yacc.c  */
-#line 989 "Parser.y"
+#line 992 "Parser.y"
     {
 					//$$=$1;
 					nodeType *node = (yyvsp[(1) - (1)].nodetype);
@@ -3089,7 +3092,7 @@ yyreduce:
 
   case 122:
 /* Line 1792 of yacc.c  */
-#line 996 "Parser.y"
+#line 999 "Parser.y"
     {
 					(yyval.nodetype)=(yyvsp[(2) - (3)].nodetype);
 				}
@@ -3097,7 +3100,7 @@ yyreduce:
 
   case 123:
 /* Line 1792 of yacc.c  */
-#line 1000 "Parser.y"
+#line 1003 "Parser.y"
     {
 					//$$=opr(NOT,1,$2);
 					//check_not_exp($2->exp);
@@ -3116,7 +3119,7 @@ yyreduce:
 
   case 124:
 /* Line 1792 of yacc.c  */
-#line 1015 "Parser.y"
+#line 1018 "Parser.y"
     {
 					//$$=opr(MINUS,1,$2);
 					//check_minus_exp($2->exp);
@@ -3135,7 +3138,7 @@ yyreduce:
 
   case 125:
 /* Line 1792 of yacc.c  */
-#line 1030 "Parser.y"
+#line 1033 "Parser.y"
     {
 					//access array
 					//$$=opr(LB,2,id($1),$3);
@@ -3148,7 +3151,7 @@ yyreduce:
 
   case 126:
 /* Line 1792 of yacc.c  */
-#line 1039 "Parser.y"
+#line 1042 "Parser.y"
     {
 					//$$=opr(DOT,2,id($1),id($3));
 					//access record
@@ -3161,19 +3164,19 @@ yyreduce:
 
   case 127:
 /* Line 1792 of yacc.c  */
-#line 1050 "Parser.y"
+#line 1053 "Parser.y"
     {(yyval.nodetype)=opr(ARGS_LIST,2,(yyvsp[(1) - (3)].nodetype),(yyvsp[(3) - (3)].nodetype));}
     break;
 
   case 128:
 /* Line 1792 of yacc.c  */
-#line 1052 "Parser.y"
+#line 1055 "Parser.y"
     {(yyval.nodetype)=(yyvsp[(1) - (1)].nodetype);}
     break;
 
 
 /* Line 1792 of yacc.c  */
-#line 3177 "Parser.cpp"
+#line 3180 "Parser.cpp"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -3405,7 +3408,7 @@ yyreturn:
 
 
 /* Line 2055 of yacc.c  */
-#line 1056 "Parser.y"
+#line 1059 "Parser.y"
 
 
 
