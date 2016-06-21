@@ -192,7 +192,7 @@ void printTreeImpl(nodeType* tree, int& count){
                     printStr = printStr + "string: " + node->str;
                 }break;
                 case CHAR:{
-                    printStr = printStr + "char: " + node->str;
+                    printStr = printStr + "char: " + node->character;
                 }break;
                 case REAL:{
                     printStr = printStr + "real: " + doubleToString(node->real);

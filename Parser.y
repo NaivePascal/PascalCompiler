@@ -7,6 +7,7 @@
 #include "node.h"
 #include "Lexer.h"
 #include "Midcode.h"
+#include "TargetCode.h"
 
 int yylex(void);
 void yyerror(char *s);
@@ -99,6 +100,8 @@ program			: program_head  routine  DOT{
 					printTree(syntaxTree);
 					printSymbolTable();
 					Gen_Drive(syntaxTree, "output.txt");
+					//puts("---Target Code---");
+					//printTargetCode(cout);
 
 					//hdj
 					//program ends, exit scope

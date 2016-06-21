@@ -12,13 +12,14 @@ using namespace std;
 #define DEBUG
 
 using namespace std;
-
+int array_size(nodeType* node);
 extern nodeType *tp(int i);
 extern int yylineno;
 void insert(char *name, nodeType* type);
 void enter_scope();
 
 nodeType* lookup(string name);
+
 bool type_equal(nodeType *n1, nodeType *n2);
 string type_str(nodeType *node);
 void type_error(const char *s);
@@ -332,5 +333,8 @@ Scope exit_scope();
 extern vector<Scope> symbol_table_stack;
 extern int level;
 extern string message;
+Symbol lookupSymbol(string name);
+Type FuncReturnType(const Symbol &symbol);
 
 #endif // !_SYMBOL_H_
+

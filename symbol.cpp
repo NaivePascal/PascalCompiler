@@ -157,7 +157,11 @@ int type_space(nodeType *node) {
 	return -1;
 }
 
+#include "TargetCode.h"
 void insert(char *name, nodeType* node) {
+	//test data section
+	//declare(name, node);
+
 	int addr = symbol_table_stack.back().address;
 	map<string, Symbol> &table = symbol_table_stack.back().symbol_table;
 	Symbol newSymbol(node, addr);
@@ -670,4 +674,17 @@ void printSymbolTable() {
 	cout << "name\t type info \toffset\t level" << endl;
 	cout << message << endl;
 }
-
+Symbol lookupSymbol(string name)
+{
+	//traverse the stack backwards to find symbol
+	for (auto iter = symbol_table_stack.rbegin(); iter != symbol_table_stack.rend(); iter++) {
+		auto item = iter->symbol_table.find(name);
+		if (item != iter->symbol_table.end()) {
+			return item->second; //return node information
+		}
+	}
+}
+Type FuncReturnType(const Symbol &symbol)
+{
+	return symbol.func.returnType;
+}
