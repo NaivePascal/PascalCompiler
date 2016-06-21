@@ -123,7 +123,7 @@ sub_routine		: routine_head  routine_body
 				;							
 
 routine_head	: label_part const_part type_part var_part  routine_part
-				{$$ = opr(ROUTINE_HEAD,3,$2,$3,$4);}
+				{$$ = opr(ROUTINE_HEAD,4,$2,$3,$4,$5);}
 				;
 
 label_part		: ;
@@ -921,7 +921,7 @@ factor			: ID
 				|  ID  LP  args_list  RP
 				{
 					//$$=opr(LP,2,$1,$3);
-					nodeType *node = opr(LP, 2, $1, $3);
+					nodeType *node = opr(LP, 2, id($1), $3);
 					nodeType *refer = lookup($1);
 					if(refer->type==typeOpr && refer->opr.oper == FUNCTION_HEAD){
 						//check parameters!!!

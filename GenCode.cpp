@@ -440,7 +440,12 @@ Arg GenOpr(nodeType* pnode){
         break;
         case ARGS_LIST:
 			tmp.op = PARAM;
-			GenCode(child[0]);
+			if (child[0]->opr.oper == ARGS_LIST)
+				GenCode(child[0]);
+			else{
+				tmp.arg1 = GenCode(child[0]);
+				midcode_list.push_back(tmp);
+			}
 			tmp.arg1 = GenCode(child[1]);
 			midcode_list.push_back(tmp);
         break;
