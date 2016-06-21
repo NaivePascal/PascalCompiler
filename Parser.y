@@ -183,7 +183,7 @@ type_decl_list	: type_decl_list  type_definition{
 				};
 
 type_definition : ID  EQUAL  type_decl  SEMI{
-					$$=opr(TYPE_DEFINITION,2,$1,$3);
+					$$=opr(TYPE_DEFINITION,2,id($1),$3);
 
 					//example:
 					//type
