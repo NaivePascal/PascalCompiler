@@ -487,7 +487,7 @@ assign_stmt		: ID  ASSIGN  expression
 				}
 				| ID LB expression RB ASSIGN expression
 				{
-					$$=opr(ASSIGN,3,id($1),$3,$6);
+					$$=opr(ASSIGN_STMT,3,id($1),$3,$6);
 					//type check
 					nodeType *check1 = $3;
 					nodeType *check2 = $6;
@@ -945,9 +945,9 @@ factor			: ID
 				}
 				|  SYS_FUNCT  LP  args_list  RP
 				{
-					//$$=opr(SYS_FUNCT,2,$1,$3);
 					//..never check input type now
-					nodeType *node=sysFunc($1);
+					//nodeType *node=sysFunc($1);
+					nodeType *node=opr(SYS_FUNCT,2, sysFunc($1),$3);
 					switch($1){
 						case SYS_FUNCT_ABS:{
 							node->exp=tp(SYS_TYPE_INTEGER);
@@ -983,8 +983,7 @@ factor			: ID
 							break;
 						}
 					}
-					$$ = node;
-				}  
+					$$ = node;				}  
 				|  const_value
 				{
 					//$$=$1;

@@ -76,6 +76,9 @@ Arg GenOpr(nodeType* pnode){
 	if (pnode == NULL) return res;
 	nodeType** child = pnode->opr.op;
 	midcode tmp;
+	if ((pnode->opr).oper == 303){
+		arg1 = arg2;
+	}
 	switch ((pnode->opr).oper){
 		//Declaration
 		case ROUTINE:
@@ -239,6 +242,13 @@ Arg GenOpr(nodeType* pnode){
 			}
 			midcode_list.push_back(tmp);
         break;
+		case ASSIGN_STMT:
+			tmp.op = ASSIGN_STMT;
+			tmp.result = GenId(child[0]);
+			tmp.arg1 = GenCode(child[2]);
+			tmp.arg2 = GenCode(child[1]);
+			midcode_list.push_back(tmp);
+		break;
 		case PROC_STMT:
 			//No parameter
 			if (pnode->opr.nops == 1){
@@ -247,7 +257,13 @@ Arg GenOpr(nodeType* pnode){
 			}
 			//Parameter require
 			else if (pnode->opr.nops == 2){
-				GenCode(child[1]);//args_list | sysproc
+				tmp.op = PARAM;  //args_list | sysproc
+				if (child[1]->opr.oper == ARGS_LIST)
+					GenCode(child[1]);
+				else{
+					tmp.arg1 = GenCode(child[1]);
+					midcode_list.push_back(tmp);
+				}
 				tmp.op = PROCEDURE;
 				tmp.arg1 = GenCode(child[0]);
 			}
@@ -336,10 +352,10 @@ Arg GenOpr(nodeType* pnode){
 			labels++;
 			// Initialize the id
 			tmp.op = ASSIGN;
-			tmp.arg1 = GenId(child[0]);
+			tmp.arg1 = GenCode(child[1]);
 			tmp.arg2.type = INTEGER;
 			tmp.arg2.ci = 0;
-			tmp.result = GenId(child[1]);
+			tmp.result = GenId(child[0]);
 			midcode_list.push_back(tmp);
 			// Label loop
 			tmp.op = LABEL;
@@ -460,6 +476,10 @@ Arg GenOpr(nodeType* pnode){
 			tmp.arg1 = GenCode(child[1]);
 			midcode_list.push_back(tmp);
         break;
+		case SYS_FUNCT:
+			GenCode(child[1]);
+			GenCode(child[0]);
+		break;
     }
 	return res;
 }
@@ -472,6 +492,7 @@ int GenType(nodeType* pnode){
 /// Generate System procedure
 Arg GenSysProc(nodeType* pnode){
 	Arg res;
+	res.type = SYS_PROC;
 	res.proc = (pnode->sysProc).name;
 	return res;
 }
@@ -479,6 +500,7 @@ Arg GenSysProc(nodeType* pnode){
 /// Generate System function
 Arg GenSysFunc(nodeType* pnode){
 	Arg res;
+	res.type = SYS_FUNCT;
 	res.func = (pnode->sysFunc).name;
 	return res;
 }
@@ -540,10 +562,10 @@ string printArg(Arg in){
 		res = in.id;
 		break;
 	case SYS_PROC:
-		res = in.id;
+		res = intToString(in.proc);
 		break;
 	case SYS_FUNCT:
-		res = in.id;
+		res = intToString(in.func);
 		break;
 	}
 	return res;

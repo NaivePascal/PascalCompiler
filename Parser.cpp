@@ -685,7 +685,7 @@ static const yytype_uint16 yyrline[] =
      603,   628,   629,   631,   641,   643,   648,   650,   654,   659,
      661,   665,   680,   695,   710,   725,   740,   755,   759,   782,
      802,   818,   824,   844,   864,   878,   893,   899,   921,   939,
-     946,   988,   995,   999,  1014,  1029,  1038,  1049,  1051
+     946,   987,   994,   998,  1013,  1028,  1037,  1048,  1050
 };
 #endif
 
@@ -2447,7 +2447,7 @@ yyreduce:
 /* Line 1792 of yacc.c  */
 #line 489 "Parser.y"
     {
-					(yyval.nodetype)=opr(ASSIGN,3,id((yyvsp[(1) - (6)].sValue)),(yyvsp[(3) - (6)].nodetype),(yyvsp[(6) - (6)].nodetype));
+					(yyval.nodetype)=opr(ASSIGN_STMT,3,id((yyvsp[(1) - (6)].sValue)),(yyvsp[(3) - (6)].nodetype),(yyvsp[(6) - (6)].nodetype));
 					//type check
 					nodeType *check1 = (yyvsp[(3) - (6)].nodetype);
 					nodeType *check2 = (yyvsp[(6) - (6)].nodetype);
@@ -3034,9 +3034,9 @@ yyreduce:
 /* Line 1792 of yacc.c  */
 #line 947 "Parser.y"
     {
-					//$$=opr(SYS_FUNCT,2,$1,$3);
 					//..never check input type now
-					nodeType *node=sysFunc((yyvsp[(1) - (4)].sysFunc));
+					//nodeType *node=sysFunc($1);
+					nodeType *node=opr(SYS_FUNCT,2, sysFunc((yyvsp[(1) - (4)].sysFunc)),(yyvsp[(3) - (4)].nodetype));
 					switch((yyvsp[(1) - (4)].sysFunc)){
 						case SYS_FUNCT_ABS:{
 							node->exp=tp(SYS_TYPE_INTEGER);
@@ -3072,13 +3072,12 @@ yyreduce:
 							break;
 						}
 					}
-					(yyval.nodetype) = node;
-				}
+					(yyval.nodetype) = node;				}
     break;
 
   case 121:
 /* Line 1792 of yacc.c  */
-#line 989 "Parser.y"
+#line 988 "Parser.y"
     {
 					//$$=$1;
 					nodeType *node = (yyvsp[(1) - (1)].nodetype);
@@ -3089,7 +3088,7 @@ yyreduce:
 
   case 122:
 /* Line 1792 of yacc.c  */
-#line 996 "Parser.y"
+#line 995 "Parser.y"
     {
 					(yyval.nodetype)=(yyvsp[(2) - (3)].nodetype);
 				}
@@ -3097,7 +3096,7 @@ yyreduce:
 
   case 123:
 /* Line 1792 of yacc.c  */
-#line 1000 "Parser.y"
+#line 999 "Parser.y"
     {
 					//$$=opr(NOT,1,$2);
 					//check_not_exp($2->exp);
@@ -3116,7 +3115,7 @@ yyreduce:
 
   case 124:
 /* Line 1792 of yacc.c  */
-#line 1015 "Parser.y"
+#line 1014 "Parser.y"
     {
 					//$$=opr(MINUS,1,$2);
 					//check_minus_exp($2->exp);
@@ -3135,7 +3134,7 @@ yyreduce:
 
   case 125:
 /* Line 1792 of yacc.c  */
-#line 1030 "Parser.y"
+#line 1029 "Parser.y"
     {
 					//access array
 					//$$=opr(LB,2,id($1),$3);
@@ -3148,7 +3147,7 @@ yyreduce:
 
   case 126:
 /* Line 1792 of yacc.c  */
-#line 1039 "Parser.y"
+#line 1038 "Parser.y"
     {
 					//$$=opr(DOT,2,id($1),id($3));
 					//access record
@@ -3161,19 +3160,19 @@ yyreduce:
 
   case 127:
 /* Line 1792 of yacc.c  */
-#line 1050 "Parser.y"
+#line 1049 "Parser.y"
     {(yyval.nodetype)=opr(ARGS_LIST,2,(yyvsp[(1) - (3)].nodetype),(yyvsp[(3) - (3)].nodetype));}
     break;
 
   case 128:
 /* Line 1792 of yacc.c  */
-#line 1052 "Parser.y"
+#line 1051 "Parser.y"
     {(yyval.nodetype)=(yyvsp[(1) - (1)].nodetype);}
     break;
 
 
 /* Line 1792 of yacc.c  */
-#line 3177 "Parser.cpp"
+#line 3176 "Parser.cpp"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -3405,7 +3404,7 @@ yyreturn:
 
 
 /* Line 2055 of yacc.c  */
-#line 1056 "Parser.y"
+#line 1055 "Parser.y"
 
 
 

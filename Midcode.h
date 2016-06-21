@@ -36,8 +36,8 @@ typedef struct{
     char cc;
     int cb;
     string id;
-	string proc;
-	string func;
+	int proc;
+	int func;
 }Arg;
 
 ///3-address-code structure
