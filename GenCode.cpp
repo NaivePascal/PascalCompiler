@@ -36,28 +36,26 @@ Arg GenCode(nodeType* pnode);
 /// Generate Constant
 Arg GenCon(nodeType* pnode){
 	Arg res;
+	res.ci = res.cc = res.cr = res.cb = 0;
+	res.temporary = false;
     switch((pnode->con).type){
         case INTEGER:
-			res.type = CON_INT;
 			res.ci = (pnode->con).integer;
         break;
 		case STRING:
-			res.type = CON_STRING;
 			res.cs = (pnode->con).str;
         break;
 		case CHAR:
-			res.type = CON_CHAR;
 			res.cc = (pnode->con).character;
         break;
 		case REAL:
-			res.type = CON_REAL;
 			res.cr = (pnode->con).real;
         break;
 		case BOOL:
-			res.type = CON_BOOL;
 			res.cb = (pnode->con).boolean;
         break;
-    }
+	}
+	res.type = (pnode->con).type;
 	return res;
 }
 
@@ -112,14 +110,9 @@ Arg GenOpr(nodeType* pnode){
         case ENUM:
 
         break;
+		//*********Useless**********
         case CONST_POSITIVE_POSITIVE:
-			arg1 = GenCon(child[0]);
-			arg2 = GenCon(child[1]);
-        break;
 		case CONST_NEGATIVE_POSITIVE:
-			arg1 = GenCon(child[0]);
-			arg2 = GenCon(child[1]);
-        break;
         case CONST_NEGATIVE_NEGATIVE:
 			arg1 = GenCon(child[0]);
 			arg2 = GenCon(child[1]);
@@ -159,6 +152,7 @@ Arg GenOpr(nodeType* pnode){
 			}
 		}
         break;
+
 		//Code
         case ROUTINE_PART:
 			GenOpr(child[0]);
@@ -176,7 +170,7 @@ Arg GenOpr(nodeType* pnode){
 			insert(child[0]->id.sValue, pnode);
 			enter_scope();
 			tmps = 0;
-			tmp.op = TAC_PROC;
+			tmp.op = PROC;
 			tmp.arg1 = GenId(child[0]);
 			midcode_list.push_back(tmp);
 			//hdj:insert function parameters
@@ -197,7 +191,7 @@ Arg GenOpr(nodeType* pnode){
 			insert(child[0]->id.sValue, pnode);
 			enter_scope();
 			tmps = 0;
-			tmp.op = TAC_PROC;
+			tmp.op = PROC;
 			tmp.arg1 = GenId(child[0]);
 			midcode_list.push_back(tmp);
 			//hdj:insert function parameters
@@ -218,21 +212,21 @@ Arg GenOpr(nodeType* pnode){
 			GenOpr(child[1]);//stmt
         break;
         case COLON:
-			tmp.op = TAC_LABEL;
+			tmp.op = LABEL;
 			tmp.arg1 = GenCon(child[0]);
 			midcode_list.push_back(tmp);
 			GenOpr(child[1]);
         break;
 		case GOTO:
-			tmp.op = TAC_GOTO;
+			tmp.op = GOTO;
 			tmp.arg1 = GenCon(child[0]);
 			midcode_list.push_back(tmp);
         case ASSIGN:
-			tmp.op = TAC_ASSIGN;
+			tmp.op = ASSIGN;
 			tmp.result = GenId(child[0]);
 			if (pnode->opr.nops == 2){
 				tmp.arg1 = GenCode(child[1]);
-				tmp.arg2.type = CON_INT;
+				tmp.arg2.type = INTEGER;
 				tmp.arg2.ci = 0;
 			}else if (pnode->opr.nops == 3){
 				tmp.arg1 = GenCode(child[2]);
@@ -243,22 +237,22 @@ Arg GenOpr(nodeType* pnode){
 		case PROC_STMT:
 			//No parameter
 			if (pnode->opr.nops == 1){
-				tmp.op = TAC_PROC;
+				tmp.op = PROC;
 				tmp.arg1 = GenCode(child[0]);
 			}
 			//Parameter require
 			else if (pnode->opr.nops == 2){
 				GenCode(child[1]);//args_list | sysproc
-				tmp.op = TAC_PROC;
+				tmp.op = PROC;
 				tmp.arg1 = GenCode(child[0]);
 			}
 			midcode_list.push_back(tmp);
         break;
 		case IF:
-			arg1.type = CON_STRING;
+			arg1.type = STRING;
 			arg1.cs = "L" + intToString(labels);
 			labels++;
-			arg2.type = CON_STRING;
+			arg2.type = STRING;
 			arg2.cs = "L" + intToString(labels);
 			labels++;
 			//0 expression
@@ -266,29 +260,29 @@ Arg GenOpr(nodeType* pnode){
 			//1 stmt
 			GenCode(child[1]);
 			//   jump
-			tmp.op = TAC_GOTO;
+			tmp.op = GOTO;
 			tmp.arg1 = arg2;
 			midcode_list.push_back(tmp);
 			//2 else stmt
 			// Label else
-			tmp.op = TAC_LABEL;
+			tmp.op = LABEL;
 			tmp.arg1 = arg1;
 			midcode_list.push_back(tmp);
 			GenCode(child[2]);
 			// Label follow
-			tmp.op = TAC_LABEL;
+			tmp.op = LABEL;
 			tmp.arg1 = arg2;
 			midcode_list.push_back(tmp);
         break;
 		case REPEAT:
-			arg1.type = CON_STRING;
+			arg1.type = STRING;
 			arg1.cs = "L" + intToString(labels);
 			labels++;
-			arg2.type = CON_STRING;
+			arg2.type = STRING;
 			arg2.cs = "L" + intToString(labels);
 			labels++;
 			// Label loop
-			tmp.op = TAC_LABEL;
+			tmp.op = LABEL;
 			tmp.arg1 = arg1;
 			midcode_list.push_back(tmp);
 			//0 stmt
@@ -296,23 +290,23 @@ Arg GenOpr(nodeType* pnode){
 			//1 expression
 			GenControl_repeat(child[1], arg1, arg2);
 			//   jump
-			tmp.op = TAC_GOTO;
+			tmp.op = GOTO;
 			tmp.arg1 = arg1;
 			midcode_list.push_back(tmp);
 			// Label follow
-			tmp.op = TAC_LABEL;
+			tmp.op = LABEL;
 			tmp.arg1 = arg2;
 			midcode_list.push_back(tmp);
         break;
 		case WHILE:
-			arg1.type = CON_STRING;
+			arg1.type = STRING;
 			arg1.cs = "L" + intToString(labels);
 			labels++;
-			arg2.type = CON_STRING;
+			arg2.type = STRING;
 			arg2.cs = "L" + intToString(labels);
 			labels++;
 			// Label loop
-			tmp.op = TAC_LABEL;
+			tmp.op = LABEL;
 			tmp.arg1 = arg1;
 			midcode_list.push_back(tmp);
 			//0 expression
@@ -320,30 +314,30 @@ Arg GenOpr(nodeType* pnode){
 			//1 stmt
 			GenCode(child[1]);
 			//   jump
-			tmp.op = TAC_GOTO;
+			tmp.op = GOTO;
 			tmp.arg1 = arg1;
 			midcode_list.push_back(tmp);
 			// Label follow
-			tmp.op = TAC_LABEL;
+			tmp.op = LABEL;
 			tmp.arg1 = arg2;
 			midcode_list.push_back(tmp);
         break;
 		case FOR:
-			arg1.type = CON_STRING;
+			arg1.type = STRING;
 			arg1.cs = "L" + intToString(labels);
 			labels++;
-			arg2.type = CON_STRING;
+			arg2.type = STRING;
 			arg2.cs = "L" + intToString(labels);
 			labels++;
 			// Initialize the id
-			tmp.op = TAC_ASSIGN;
+			tmp.op = ASSIGN;
 			tmp.arg1 = GenId(child[0]);
-			tmp.arg2.type = CON_INT;
+			tmp.arg2.type = INTEGER;
 			tmp.arg2.ci = 0;
 			tmp.result = GenId(child[1]);
 			midcode_list.push_back(tmp);
 			// Label loop
-			tmp.op = TAC_LABEL;
+			tmp.op = LABEL;
 			tmp.arg1 = arg1;
 			midcode_list.push_back(tmp);
 			// stmt
@@ -352,17 +346,17 @@ Arg GenOpr(nodeType* pnode){
 			tmp.op = (pnode->opr).oper;
 			tmp.result = GenCode(child[0]);
 			tmp.arg1 = GenCode(child[0]);
-			tmp.arg2.type = CON_INT;
+			tmp.arg2.type = INTEGER;
 			tmp.arg2.ci = 1;
 			midcode_list.push_back(tmp);
 			// Expr control
 			GenControl_for(child[2], arg1, arg2);
 			// jump
-			tmp.op = TAC_GOTO;
+			tmp.op = GOTO;
 			tmp.arg1 = arg1;
 			midcode_list.push_back(tmp);
 			// Label follow
-			tmp.op = TAC_LABEL;
+			tmp.op = LABEL;
 			tmp.arg1 = arg2;
 			midcode_list.push_back(tmp);
         break;
@@ -390,7 +384,7 @@ Arg GenOpr(nodeType* pnode){
 			tmp.op = (pnode->opr).oper;
 			tmp.result.id = "tmp" + intToString(tmps);
 			tmps++;
-			tmp.result.type = CON_BOOL;
+			tmp.result.type = BOOL;
 			tmp.result.temporary = true;
 			tmp.arg1 = GenCode(child[0]);
 			tmp.arg2 = GenCode(child[1]);
@@ -405,8 +399,7 @@ Arg GenOpr(nodeType* pnode){
 			tmp.op = (pnode->opr).oper;
 			tmp.result.id = "tmp" + intToString(tmps); 
 			tmps++;
-
-			tmp.result.type = (type_equal(tp(SYS_TYPE_REAL),pnode->exp))?CON_REAL:CON_INT;
+			tmp.result.type = (type_equal(tp(SYS_TYPE_REAL),pnode->exp))?REAL:INTEGER;
 			tmp.result.temporary = true;
 			tmp.arg1 = GenCode(child[0]);
 			tmp.arg2 = GenCode(child[1]);
@@ -414,18 +407,18 @@ Arg GenOpr(nodeType* pnode){
 			res = tmp.result;
 		break;
         case LP:
-			tmp.op = TAC_CALL;
+			tmp.op = CALL;
 			GenCode(child[1]);
 			tmp.arg1 = GenId(child[0]);
 			midcode_list.push_back(tmp);
         break;
         /// Array Index
 		case LB:
-			tmp.op = TAC_ASSIGN;
+			tmp.op = ASSIGN;
 			tmp.result.id = "tmp" + intToString(tmps);
 			tmps++;
 
-			tmp.result.type = (type_equal(tp(SYS_TYPE_INTEGER), pnode->exp)) ? CON_REAL : CON_INT;
+			tmp.result.type = (type_equal(tp(SYS_TYPE_INTEGER), pnode->exp)) ? REAL : INTEGER;
 			tmp.result.temporary = true;
 			tmp.arg1 = GenId(child[0]);
 			tmp.arg2 = GenCode(child[1]);
@@ -433,20 +426,20 @@ Arg GenOpr(nodeType* pnode){
 			res = tmp.result;
         break;
 		case DOT:
-			tmp.op = TAC_ASSIGN;
+			tmp.op = ASSIGN;
 			tmp.result.id = "tmp" + intToString(tmps);
 			tmps++;
 
-			tmp.result.type = (type_equal(tp(SYS_TYPE_INTEGER), pnode->exp)) ? CON_REAL : CON_INT;
+			tmp.result.type = (type_equal(tp(SYS_TYPE_INTEGER), pnode->exp)) ? REAL : INTEGER;
 			tmp.result.temporary = true;
 			tmp.arg1 = GenId(child[0]);
-			tmp.arg2.type = CON_INT;
+			tmp.arg2.type = INTEGER;
 			tmp.arg2.ci = 0;
 			midcode_list.push_back(tmp);
 			res = tmp.result;
         break;
         case ARGS_LIST:
-			tmp.op = TAC_PARAM;
+			tmp.op = PARAM;
 			GenCode(child[0]);
 			tmp.arg1 = GenCode(child[1]);
 			midcode_list.push_back(tmp);
@@ -512,28 +505,28 @@ string printArg(Arg in){
 	if (in.temporary == true)
 		return in.id;
 	switch (in.type){
-	case CON_INT:
+	case INTEGER:
 		res = intToString(in.ci);
 		break;
-	case CON_REAL:
+	case REAL:
 		res = intToString(in.cr);
 		break;
-	case CON_STRING:
+	case STRING:
 		res = in.cs;
 		break;
-	case CON_CHAR:
+	case CHAR:
 		res = in.cc;
 		break;
-	case CON_BOOL:
+	case BOOL:
 		res = intToString(in.cb);
 		break;
 	case ID:
 		res = in.id;
 		break;
-	case SYSPRO:
+	case SYS_PROC:
 		res = in.id;
 		break;
-	case SYSFUNC:
+	case SYS_FUNCT:
 		res = in.id;
 		break;
 	}

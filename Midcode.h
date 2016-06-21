@@ -15,25 +15,25 @@
 #define GOTO_END_OF_LIST(name) {while (name->next != NULL) \
                                   name = name->next; \
 							}
+/*
 typedef enum{
-    CODE, CON_INT,CON_REAL,CON_STRING,CON_CHAR,CON_BOOL,SYSPRO,SYSFUNC
-}arg_type;
+	PROC, GOTO, ASSIGN,
+	LABEL, GE, GT, LE, LT,
+	PARAM, CALL,
+}opt;*/
 
-typedef enum{
-	TAC_PROC, TAC_GOTO, TAC_ASSIGN,
-	TAC_LABEL, TAC_GE, TAC_GT, TAC_LE, TAC_LT,
-	TAC_PARAM, TAC_CALL,
-}tac_opt;
+#define PARAM 256
+#define CALL 257
 
 ///The 3-address-code arg structure
 typedef struct{
     int type;
-    bool temporary = false;
-    int ci = 0;
-    double cr = 0 ;
+    bool temporary;
+    int ci;
+    double cr;
     string cs;
     char cc;
-    int cb = 0;
+    int cb;
     string id;
 	string proc;
 	string func;
