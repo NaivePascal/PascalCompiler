@@ -559,7 +559,7 @@ proc_stmt		: ID
 				{$$=opr(PROC_STMT,2,id($1),$3);}
 				|  SYS_PROC
 				{$$=opr(PROC_STMT,1,sysProc($1));}
-				|  SYS_PROC  LP  expression_list  RP
+				|  SYS_PROC  LP  args_list  RP
 				{$$=opr(PROC_STMT,2,sysProc($1),$3);}
 				|  READ  LP  factor  RP
 				{$$=opr(READ,1,$3);}

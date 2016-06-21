@@ -64,6 +64,23 @@ Arg GenId(nodeType* pnode){
 	Arg res;
 	res.type = ID;
 	res.id = (pnode->id).sValue;
+	//********************************************
+	//Judge if it is a function so and add a TAC
+	//if (Check_if_func(res.id)){
+	//	midcode tmp;
+	//	tmp.op = CALL;
+	//	tmp.arg1.type = ID;
+	//	tmp.arg1.id = res.id;
+	//	//############################################
+	//	tmp.result.id = "tmp" + intToString(tmps);
+	//	tmps++;
+	//	//tmp.result.type = get_return_type();
+	//	tmp.result.temporary = true;
+	//	//############################################
+	//	midcode_list.push_back(tmp);
+	//	res = tmp.result;
+	//	//********************************************
+	//}
 	return res;
 }
 
@@ -258,7 +275,7 @@ Arg GenOpr(nodeType* pnode){
 			//Parameter require
 			else if (pnode->opr.nops == 2){
 				tmp.op = PARAM;  //args_list | sysproc
-				if (child[1]->opr.oper == ARGS_LIST)
+				if (child[1]->opr.oper == LP)
 					GenCode(child[1]);
 				else{
 					tmp.arg1 = GenCode(child[1]);
@@ -422,8 +439,15 @@ Arg GenOpr(nodeType* pnode){
 			tmps++;
 			tmp.result.type = (type_equal(tp(SYS_TYPE_REAL),pnode->exp))?REAL:INTEGER;
 			tmp.result.temporary = true;
-			tmp.arg1 = GenCode(child[0]);
-			tmp.arg2 = GenCode(child[1]);
+			if (pnode->opr.nops == 2){
+				tmp.arg1 = GenCode(child[0]);
+				tmp.arg2 = GenCode(child[1]);
+			}
+			else{
+				tmp.arg2 = GenCode(child[0]);
+				tmp.arg1.type = INTEGER;
+				tmp.arg1.ci = 0;
+			}
 			midcode_list.push_back(tmp);
 			res = tmp.result;
 		break;
