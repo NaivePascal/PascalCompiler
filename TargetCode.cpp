@@ -362,7 +362,7 @@ void GenTargetCode(const vector<midcode>&){
 			// pop sth to end a block
 		}
 	}
-=======
+
 #include "TargetCode.h"
 #include "Parser.h"
 #include <vector>
