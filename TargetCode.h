@@ -81,7 +81,7 @@ void GenTargetCode(const vector<midcode>&);
 void declare(string name, nodeType *node);
 
 //real number calculation
-void realCompare(string arg1, string arg2, string ret);
+void realCompare(string arg1, string arg2, string ret, int type)
 void realCalculate(int type, const string& arg1, const string& arg2, const string& ret);
 
 //sys func
