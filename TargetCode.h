@@ -82,11 +82,11 @@ void declare(string name, nodeType *node);
 
 //lzt:real number calculation
 void realCalculation(const string& arg1, const string& arg2, const string& ret, int type);
-void realCmpSection(const string& arg1, const string& arg2, const string& ret, const string& constant);
+void realCompare(const string& ret, int type);
 
 //lzt:int calculation
 void intCalculation(const string& arg1, const string& arg2, const string& ret, int type);
-void intCompare(const string& arg1, const string& arg2, const string& ret, int type);
+void intCompare(const string& ret, int type);
 
 //sys func
 void sysFuncAbs(int type, const string& arg, const string& ret);

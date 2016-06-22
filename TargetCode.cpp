@@ -13,9 +13,8 @@ Section codeSection;
 string spaceStr[4] = { "BYTE" ,"SDWORD", "REAL8", "DWORD"};
 extern int labels;
 
-void intCmpSection(const string& arg1, const string& arg2, const string& ret, const string& j);
-void realCmpSection(const string& arg1, const string& arg2, const string& ret, const string& constant);
-
+void intCmpSection(const string& ret, const string& j);
+void realCmpSection(const string& ret, const string& constant);
 Space typeSpace(int simpleType)
 {
 	switch (simpleType) {
@@ -251,6 +250,7 @@ void sysFuncSucc(const string & arg, const string & ret)
 }
 
 
+
 void realCalculation(const string& arg1, const string& arg2, const string& ret, int type) {
 	codeSection.append("fld", arg1);
 	string opr;
@@ -279,8 +279,7 @@ void realCalculation(const string& arg1, const string& arg2, const string& ret, 
 	codeSection.append("fstp",ret);
 }
 
-
-void realCmpSection(const string& arg1, const string& arg2, const string& ret, const string& constant) {
+void realCmpSection(const string& ret, const string& constant) {
 	codeSection.append("and", "ax,"+constant);
 	string label1 = "L"+intToString(labels++);
 	string label2 = "L"+intToString(labels++);
@@ -292,31 +291,31 @@ void realCmpSection(const string& arg1, const string& arg2, const string& ret, c
 	codeSection.append(label2,":");
 }
 
-void realCompare(string arg1, string arg2, string ret, int type) {
-	codeSection.append("fld", arg1);
-	codeSection.append("fcom", arg2);
+void realCompare(const string& ret, int type) {
+	//codeSection.append("fld", arg1);
+	//codeSection.append("fcom", arg2);
 	codeSection.append("fstsw", ret);
 	codeSection.append("fwait", "");
 	switch (type) {
 		case LT: {
-			realCmpSection(arg1, arg2, ret,"0100H");
+			realCmpSection(ret,"0100H");
 		}break;
 		case GT: {
-			realCmpSection(arg2, arg1, ret, "0100H");
+			realCmpSection(ret, "0100H");
 		}break;
 		case LE: {
-			realCmpSection(arg2, arg1, ret, "0100H");
+			realCmpSection(ret, "0100H");
 			codeSection.append("xor",ret+",1");
 		}break;
 		case GE: {
-			realCmpSection(arg1, arg2, ret, "0100H");
+			realCmpSection(ret, "0100H");
 			codeSection.append("xor", ret + ",1");
 		}break;
 		case EQUAL: {
-			realCmpSection(arg1, arg2, ret, "4000H");
+			realCmpSection( ret, "4000H");
 		}break;
 		case UNEQUAL: {
-			realCmpSection(arg1, arg2, ret, "4000H");
+			realCmpSection( ret, "4000H");
 			codeSection.append("xor", ret + ",1");
 		}break;
 	}
@@ -366,7 +365,7 @@ void intCalculation(const string& arg1, const string& arg2, const string& ret, i
 	}
 }
 
-void intCmpSection(const string& arg1, const string& arg2, const string& ret, const string& j) {
+void intCmpSection(const string& ret, const string& j) {
 	string label1 = "L" + intToString(labels++);
 	string label2 = "L" + intToString(labels++);
 	codeSection.append(j, label1);
@@ -376,26 +375,27 @@ void intCmpSection(const string& arg1, const string& arg2, const string& ret, co
 	codeSection.append("MOV", ret+ ",1");
 	codeSection.append(label2, ":");
 }
-void intCompare(const string& arg1, const string& arg2, const string& ret, int type) {
+
+void intCompare(const string& ret, int type) {
 	switch (type)
 	{
 		case LT: {
-			intCmpSection(arg1, arg2, ret, "JL");
+			intCmpSection(ret, "JL");
 		}break;
 		case GT: {
-			intCmpSection(arg1, arg2, ret, "JG");
+			intCmpSection( ret, "JG");
 		}break;
 		case LE: {
-			intCmpSection(arg1, arg2, ret, "JLE");
+			intCmpSection(ret, "JLE");
 		}break;
 		case GE: {
-			intCmpSection(arg1, arg2, ret, "JGE");
+			intCmpSection(ret, "JGE");
 		}break;
 		case EQUAL: {
-			intCmpSection(arg1, arg2, ret, "JE");
+			intCmpSection(ret, "JE");
 		}break;
 		case UNEQUAL: {
-			intCmpSection(arg1, arg2, ret, "JNE");
+			intCmpSection(ret, "JNE");
 		}break;
 	default:
 		break;
@@ -483,11 +483,11 @@ bool GenAss(midcode ptac, midcode tac, midcode ntac){
 	case LT:
 	case EQUAL:
 	case UNEQUAL: {
-		string arg1, arg2, ret;
+		string  ret;
 		//is int
-		intCompare(arg1, arg2, ret, tac.op);
+		intCompare(ret, tac.op);
 		//is real
-		realCompare(arg1, arg2, ret, tac.op);
+		realCompare(ret, tac.op);
 	}break;
 
 	//lzt - calculate
