@@ -64,23 +64,6 @@ Arg GenId(nodeType* pnode){
 	Arg res;
 	res.type = ID;
 	res.id = (pnode->id).sValue;
-	//********************************************
-	//Judge if it is a function so and add a TAC
-	//if (Check_if_func(res.id)){
-	//	midcode tmp;
-	//	tmp.op = CALL;
-	//	tmp.arg1.type = ID;
-	//	tmp.arg1.id = res.id;
-	//	//############################################
-	//	tmp.result.id = "tmp" + intToString(tmps);
-	//	tmps++;
-	//	//tmp.result.type = get_return_type();
-	//	tmp.result.temporary = true;
-	//	//############################################
-	//	midcode_list.push_back(tmp);
-	//	res = tmp.result;
-	//	//********************************************
-	//}
 	return res;
 }
 
@@ -402,7 +385,7 @@ Arg GenOpr(nodeType* pnode){
 
         break;
         case CASE_EXPR_LIST:
-
+			
         break;
         case CASE_EXPR:
 
@@ -452,15 +435,19 @@ Arg GenOpr(nodeType* pnode){
 			res = tmp.result;
 		break;
         case LP:
+			if (child[1]->type == typeOpr && child[1]->opr.oper == ARGS_LIST){
+				GenCode(child[1]);
+			}
+			else{
+				tmp.op = PARAM;
+				tmp.arg1 = GenCode(child[1]);
+				midcode_list.push_back(tmp);
+			}
 			tmp.op = CALL;
-			GenCode(child[1]);
 			tmp.arg1 = GenId(child[0]);
-			//############################################
 			tmp.result.id = "tmp" + intToString(tmps);
 			tmps++;
-			//tmp.result.type = get_return_type();
 			tmp.result.temporary = true;
-			//############################################
 			midcode_list.push_back(tmp);
         break;
         /// Array Index
