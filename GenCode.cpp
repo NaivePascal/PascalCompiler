@@ -193,19 +193,69 @@ Arg GenCon(nodeType* pnode){
 /// Generate Id
 Arg GenId(nodeType* pnode){
 	Arg res;
-	res.ifID = true;
-	res.id = (pnode->id).sValue;
-	res.type = lookup((pnode->id).sValue)->tp.type;
-	res.addr = lookup_address((pnode->id).sValue);
-	/*switch (lookup((pnode->id).sValue)->tp.type){
-	case SYS_TYPE_BOOL:
-		break;
-	case SYS_TYPE_INTEGER:
-		break;
-	case SYS_TYPE_REAL:
-		break;
-	case SYS_TYPE_CHAR:
-		break;
+	res.type = ID;
+	res.id = lookupSymbol((pnode->id).sValue);
+	/*
+	switch (symbol.symbolType){
+	case SymbolType::DATA: {
+		Type type = symbol.type;//¿‡–Õ
+		int addr = symbol.addr;//µÿ÷∑
+		if (type.is_record) {
+			//record
+			vector<string> fields = type.fields;
+		}
+		else {
+			Base b = type.base;
+			if (b.is_array) {
+				//array
+			}
+			else {
+				//simple type
+				Simple s = b.index;
+				switch (s.type)
+				{
+				case SimpleType::BOOL_T: {
+					//bool
+					res.type = BOOL;
+					break;
+				}
+				case SimpleType::CHAR_T: {
+					//char
+					res.type = CHAR;
+					break;
+				}
+				case SimpleType::INT_T: {
+					//int
+					res.type = INTEGER;
+					break;
+				}
+				case SimpleType::REAL_T: {
+					//real
+					res.type = REAL;
+					break;
+				}
+				case SimpleType::ENUM_T: {
+					//enum
+					res.type = ENUM;
+					break;
+				}
+				case SimpleType::RANGE_T: {
+					//subrange
+					res.type = RANGE_T;
+					break;
+				}
+				}
+			}
+		}
+	}
+	case SymbolType::FUNC:{
+		//function
+		Type ret = symbol.func.returnType;
+
+	}
+	case SymbolType::PROC: {
+
+	}
 	}*/
 	return res;
 }
@@ -579,7 +629,7 @@ Arg GenOpr(nodeType* pnode){
 		case OR:
 		case AND:
 			tmp.op = (pnode->opr).oper;
-			tmp.result.id = "tmp" + intToString(tmps);
+			tmp.result.cs = "tmp" + intToString(tmps);
 			tmps++;
 			tmp.result.type = BOOL;
 			tmp.result.temporary = true;
@@ -590,7 +640,7 @@ Arg GenOpr(nodeType* pnode){
 			break;
 		case NOT:
 			tmp.op = (pnode->opr).oper;
-			tmp.result.id = "tmp" + intToString(tmps);
+			tmp.result.cs = "tmp" + intToString(tmps);
 			tmps++;
 			tmp.result.type = BOOL;
 			tmp.result.temporary = true;
@@ -605,7 +655,7 @@ Arg GenOpr(nodeType* pnode){
         case DIV:
 		case MOD:
 			tmp.op = (pnode->opr).oper;
-			tmp.result.id = "tmp" + intToString(tmps); 
+			tmp.result.cs = "tmp" + intToString(tmps); 
 			tmps++;
 			tmp.result.type = (type_equal(tp(SYS_TYPE_REAL),pnode->exp))?REAL:INTEGER;
 			tmp.result.temporary = true;

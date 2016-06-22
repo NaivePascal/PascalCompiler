@@ -44,9 +44,6 @@ typedef enum{
 struct Arg{
     int type;
     bool temporary;
-	bool ifID;
-	bool iffunction;
-	bool ifprocedure;
 	bool ifinsubroutine;
 	int addr;
     int ci;
@@ -54,16 +51,13 @@ struct Arg{
     string cs;
     char cc;
     int cb;
-    string id;
+    Symbol id;
 	int proc;
 	int func;
 
 	Arg(){
 		type = INTEGER;
 		temporary = false;
-		ifID = false;
-		iffunction = false;
-		ifprocedure = false;
 		ifinsubroutine = false;
 		addr = 0;
 		ci = 0;
@@ -71,7 +65,6 @@ struct Arg{
 		cs = "";
 		cc = 0;
 		cb = 0;
-		id = "";
 		proc = 0;
 		func = 0;
 	}

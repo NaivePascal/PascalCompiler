@@ -275,7 +275,7 @@ void realCompare(string arg1, string arg2, string ret) {
 //vector<string> code_result;
 
 /// zrz : different type
-bool GenAss(midcode tac){
+bool GenAss(midcode ptac, midcode tac, midcode ntac){
 	char assemb[1000];
 	switch (tac.op){
 	case GOTO:
@@ -305,14 +305,14 @@ bool GenAss(midcode tac){
 
 		}
 		else{
-			codeSection.append("CALL", tac.arg1.id);
+			codeSection.append("CALL", tac.arg1.cs);
 		}
 		break;
 	case END:
-		codeSection.append(tac.arg1.id,"ENDP");
+		codeSection.append(tac.arg1.cs,"ENDP");
 	case FUNCTION:
 		// function declaration
-		codeSection.append(tac.arg1.id,"PROC","NEAR");
+		codeSection.append(tac.arg1.cs,"PROC","NEAR");
 		break;
 	case PROCEDURE:
 		// procedure declaration
@@ -326,13 +326,28 @@ bool GenAss(midcode tac){
 	case PARAM:
 		
 		break;
-	case GE:
+	case GE:{
+		codeSection.append("MOV", "eax", "ebx");
+		codeSection.append("CMP", "eax", "ebx");
+		string l1 = "L" + intToString(labels++);
+		string l2 = "L" + intToString(labels++);
+		codeSection.append("JGE", l1);
+		codeSection.append("MOV", "eax", "0");
+		codeSection.append("JMP", l2);
+		codeSection.append(l1, ":");
+		codeSection.append("MOV", "eax", "1");
+		codeSection.append(l2, ":");
 		/*CMP arg1,arg2
 		jge L1
-		L2:
 		mov res, false
-		L1: mov res ,true*/
+		jmp L2
+		L1:
+		mov res ,true
+		L2:
+		
+		*/
 		break;
+	}
 	case GT:
 
 		break;
@@ -378,8 +393,8 @@ bool GenAss(midcode tac){
 
 /// zrz : according TAC generate x86 asembly code:drive function
 void GenTargetCode(const vector<midcode>&) {
-	for (int i = 0; i < midcode_list.size(); i++) {
-		if (GenAss(midcode_list[i])) {
+	for (int i = 1; i < midcode_list.size()-1; i++) {
+		if (GenAss(midcode_list[i-1], midcode_list[i], midcode_list[i+1])) {
 			// pop sth to end a block
 		}
 	}
