@@ -17,7 +17,7 @@ FILE* ff=NULL;
 
 int labels = 0;
 int tmps = 0;
-int main = 0;
+int mains = 0;
 
 //midcode_list
 
@@ -193,8 +193,20 @@ Arg GenCon(nodeType* pnode){
 /// Generate Id
 Arg GenId(nodeType* pnode){
 	Arg res;
-	res.type = ID;
+	res.ifID = true;
 	res.id = (pnode->id).sValue;
+	res.type = lookup((pnode->id).sValue)->tp.type;
+	res.addr = lookup_address((pnode->id).sValue);
+	/*switch (lookup((pnode->id).sValue)->tp.type){
+	case SYS_TYPE_BOOL:
+		break;
+	case SYS_TYPE_INTEGER:
+		break;
+	case SYS_TYPE_REAL:
+		break;
+	case SYS_TYPE_CHAR:
+		break;
+	}*/
 	return res;
 }
 
@@ -207,16 +219,13 @@ Arg GenOpr(nodeType* pnode){
 	if (pnode == NULL) return res;
 	nodeType** child = pnode->opr.op;
 	midcode tmp;
-	if ((pnode->opr).oper == 303){
-		arg1 = arg2;
-	}
 	switch ((pnode->opr).oper){
 		case ROUTINE_BODY:
 			tmp.op = ROUTINE_BODY;
 			tmp.arg1.type = STRING;
 			tmp.arg1.cs = "MAIN";
 			midcode_list.push_back(tmp);
-			main = midcode_list.size() - 1;
+			mains = midcode_list.size() - 1;
 			GenCode(child[0]);
 		break;
 		//Declaration
@@ -256,10 +265,7 @@ Arg GenOpr(nodeType* pnode){
 		//*********Useless**********
         case CONST_POSITIVE_POSITIVE:
 		case CONST_NEGATIVE_POSITIVE:
-        case CONST_NEGATIVE_NEGATIVE:
-			arg1 = GenCon(child[0]);
-			arg2 = GenCon(child[1]);
-        break;
+		case CONST_NEGATIVE_NEGATIVE:
 		case ID_ID:
 			arg1 = GenId(child[0]);
 			arg2 = GenId(child[1]);
@@ -317,6 +323,7 @@ Arg GenOpr(nodeType* pnode){
 			//hdj: insert function
 			insert(child[0]->id.sValue, pnode);
 			enter_scope();
+			// zrz insert function label
 			tmps = 0;
 			tmp.op = FUNCTION;
 			tmp.arg1 = GenId(child[0]);
@@ -733,33 +740,51 @@ Arg GenCode(nodeType* pnode){
 
 string printArg(Arg in){
 	string res;
-	if (in.temporary == true)
+	if (in.temporary)
 		return in.id;
-	switch (in.type){
-	case INTEGER:
-		res = intToString(in.ci);
-		break;
-	case REAL:
-		res = intToString(in.cr);
-		break;
-	case STRING:
-		res = in.cs;
-		break;
-	case CHAR:
-		res = in.cc;
-		break;
-	case BOOL:
-		res = intToString(in.cb);
-		break;
-	case ID:
-		res = in.id;
-		break;
-	case SYS_PROC:
-		res = intToString(in.proc);
-		break;
-	case SYS_FUNCT:
-		res = intToString(in.func);
-		break;
+	if (in.ifID){
+		switch (in.type){
+		case SYS_TYPE_BOOL:
+			res = intToString(in.cb);
+			break;
+		case SYS_TYPE_CHAR:
+			res = intToString(in.cc);
+			break;
+		case SYS_TYPE_REAL:
+			res = intToString(in.cr);
+			break;
+		case SYS_TYPE_INTEGER:
+			res = intToString(in.ci);
+			break;
+		}
+	}
+	else{
+		switch (in.type){
+		case INTEGER:
+			res = intToString(in.ci);
+			break;
+		case REAL:
+			res = intToString(in.cr);
+			break;
+		case STRING:
+			res = in.cs;
+			break;
+		case CHAR:
+			res = in.cc;
+			break;
+		case BOOL:
+			res = intToString(in.cb);
+			break;
+		case ID:
+			res = in.id;
+			break;
+		case SYS_PROC:
+			res = intToString(in.proc);
+			break;
+		case SYS_FUNCT:
+			res = intToString(in.func);
+			break;
+		}
 	}
 	return res;
 }

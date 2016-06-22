@@ -41,9 +41,14 @@ typedef enum{
 #define CMP_LE		124
 
 ///The 3-address-code arg structure
-typedef struct{
+struct Arg{
     int type;
     bool temporary;
+	bool ifID;
+	bool iffunction;
+	bool ifprocedure;
+	bool ifinsubroutine;
+	int addr;
     int ci;
     double cr;
     string cs;
@@ -52,7 +57,25 @@ typedef struct{
     string id;
 	int proc;
 	int func;
-}Arg;
+
+	Arg(){
+		type = INTEGER;
+		temporary = false;
+		ifID = false;
+		iffunction = false;
+		ifprocedure = false;
+		ifinsubroutine = false;
+		addr = 0;
+		ci = 0;
+		cr = 0;
+		cs = "";
+		cc = 0;
+		cb = 0;
+		id = "";
+		proc = 0;
+		func = 0;
+	}
+};
 
 ///3-address-code structure
 typedef struct midcode{
@@ -65,6 +88,9 @@ typedef struct midcode{
 extern map<string, Scope>  gen_symbol_table;
 extern vector<Arg> Arg_list; //Master list of all Arg data
 extern vector<midcode> midcode_list;
+extern int labels;
+extern int tmps;
+extern int mains;
 
 void init_Midcode();
 
