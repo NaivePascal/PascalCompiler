@@ -1,6 +1,3 @@
-#include "node.h"
-#include "Parser.h"
-#include "symbol.h"
 #include "Midcode.h"
 
 /*------------------------
@@ -9,6 +6,7 @@
 */
 vector<midcode> midcode_list; // 3-address-code head
 
+map<string, Scope>  gen_symbol_table;
 vector<Arg> Arg_list; //Master list of all Arg data
 Arg ARG_BOOL_TRUE;
 Arg ARG_BOOL_FALSE;
@@ -20,7 +18,6 @@ FILE* ff=NULL;
 int labels = 0;
 int tmps = 0;
 int main = 0;
-map<string, Scope>  gen_symbol_table;
 
 //midcode_list
 

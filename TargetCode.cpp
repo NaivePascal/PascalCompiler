@@ -120,7 +120,94 @@ void printTargetCode(ostream & os)
 	os << dataSection;
 }
 
-void GenTargetCode(const vector<midcode>&)
-{
+vector<string> code_result;
 
+/// zrz : different type
+bool GenAss(midcode tac){
+	char assemb[1000];
+	switch (tac.op){
+	case GOTO:
+		sprintf(assemb, "JMP %s", tac.arg1.cs);
+		code_result.push_back(assemb);
+		break;
+	case LABEL:
+		sprintf(assemb, "%s:", tac.arg1.cs);
+		code_result.push_back(assemb);
+		break;
+	case CMP:
+		break;
+	case ROUTINE_BODY:
+		// Main process going
+		break;
+	case CALLEE:
+		// Call back
+		break;
+	case FUNCTION:
+		// Call function
+		break;
+	case PROCEDURE:
+		// Call procedure
+		break;
+	case ASSIGN:
+		// assign an value to another simple value
+		break;
+	case ASSIGN_STMT:
+
+		break;
+	case PARAM:
+
+		break;
+	case GE:
+
+		break;
+	case GT:
+
+		break;
+	case LE:
+
+		break;
+	case LT:
+
+		break;
+	case EQUAL:
+
+		break;
+	case UNEQUAL:
+
+		break;
+	case OR:
+
+		break;
+	case AND:
+
+		break;
+	case NOT:
+
+		break;
+	case PLUS:
+
+		break;
+	case MINUS:
+
+		break;
+	case MUL:
+
+		break;
+	case DIV:
+
+		break;
+	case MOD:
+
+		break;
+	}
+	return false;
+}
+
+/// zrz : according TAC generate x86 asembly code:drive function
+void GenTargetCode(const vector<midcode>&){
+	for (int i = 0; i < midcode_list.size(); i++){
+		if (GenAss(midcode_list[i])){
+			// pop sth to end a block
+		}
+	}
 }

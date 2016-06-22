@@ -2,6 +2,8 @@
 #define __MID_CODE__
 #include "node.h"
 #include <vector>
+#include "Parser.h"
+#include "symbol.h"
 /* Macro that checks for a malloc error */
 #define CHECK_MEM_ERROR(name) {if (name == NULL) { \
 				 printf("Memory allocation error\n"); \
@@ -21,6 +23,9 @@ typedef enum{
 	LABEL, GE, GT, LE, LT,
 	PARAM, CALL,
 }opt;*/
+/*
+%token PARAM CALL CALLEE CMP CMP_NOT CMP_ID CMP_EQUA CMP_UNEQUA CMP_GT CMP_GE CMP_LT CMP_LE	
+*/
 
 #define PARAM		113
 #define CALL		114
@@ -57,7 +62,9 @@ typedef struct midcode{
     Arg result;
 }midcode;
 
-
+extern map<string, Scope>  gen_symbol_table;
+extern vector<Arg> Arg_list; //Master list of all Arg data
+extern vector<midcode> midcode_list;
 
 void init_Midcode();
 

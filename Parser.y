@@ -79,6 +79,7 @@ nodeType* syntaxTree;
 %token SYS_TYPE_BOOL SYS_FUNCT_ABS SYS_FUNCT_CHR SYS_FUNCT_ODD SYS_FUNCT_ORD SYS_FUNCT_PRED
 %token SYS_FUNCT_SQR SYS_FUNCT_SQRT SYS_FUNCT_SUCC SYS_PROC_WRITE SYS_PROC_WRITELN
 
+
 %type <nodetype> program routine routine_head  const_part const_expr_list const_expr
 %type <nodetype> const_value type_part type_decl_list type_definition type_decl
 %type <nodetype> simple_type_decl array_type_decl record_type_decl field_decl_list
