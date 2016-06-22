@@ -1,3 +1,4 @@
+
 #include "TargetCode.h"
 #include "Parser.h"
 #include <vector>
@@ -376,9 +377,9 @@ bool GenAss(midcode tac){
 }
 
 /// zrz : according TAC generate x86 asembly code:drive function
-void GenTargetCode(const vector<midcode>&){
-	for (int i = 0; i < midcode_list.size(); i++){
-		if (GenAss(midcode_list[i])){
+void GenTargetCode(const vector<midcode>&) {
+	for (int i = 0; i < midcode_list.size(); i++) {
+		if (GenAss(midcode_list[i])) {
 			// pop sth to end a block
 		}
 	}
