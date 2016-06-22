@@ -80,9 +80,13 @@ struct Section {
 void GenTargetCode(const vector<midcode>&);
 void declare(string name, nodeType *node);
 
-//real number calculation
-void realCompare(string arg1, string arg2, string ret, int type)
-void realCalculate(int type, const string& arg1, const string& arg2, const string& ret);
+//lzt:real number calculation
+void realCalculation(const string& arg1, const string& arg2, const string& ret, int type);
+void realCmpSection(const string& arg1, const string& arg2, const string& ret, const string& constant);
+
+//lzt:int calculation
+void intCalculation(const string& arg1, const string& arg2, const string& ret, int type);
+void intCompare(const string& arg1, const string& arg2, const string& ret, int type);
 
 //sys func
 void sysFuncAbs(int type, const string& arg, const string& ret);

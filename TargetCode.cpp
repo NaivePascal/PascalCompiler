@@ -13,6 +13,9 @@ Section codeSection;
 string spaceStr[4] = { "BYTE" ,"SDWORD", "REAL8", "DWORD"};
 extern int labels;
 
+void intCmpSection(const string& arg1, const string& arg2, const string& ret, const string& j);
+void realCmpSection(const string& arg1, const string& arg2, const string& ret, const string& constant);
+
 Space typeSpace(int simpleType)
 {
 	switch (simpleType) {
@@ -248,7 +251,7 @@ void sysFuncSucc(const string & arg, const string & ret)
 }
 
 
-void realCalculate(int type, const string& arg1, const string& arg2, const string& ret) {
+void realCalculation(const string& arg1, const string& arg2, const string& ret, int type) {
 	codeSection.append("fld", arg1);
 	string opr;
 	switch (type)
@@ -277,10 +280,10 @@ void realCalculate(int type, const string& arg1, const string& arg2, const strin
 }
 
 
-void cmpSection(string arg1, string arg2, string ret, string constant) {
+void realCmpSection(const string& arg1, const string& arg2, const string& ret, const string& constant) {
 	codeSection.append("and", "ax,"+constant);
-	string label1 = intToString(labels++);
-	string label2 = intToString(labels++);
+	string label1 = "L"+intToString(labels++);
+	string label2 = "L"+intToString(labels++);
 	codeSection.append("JNE",label1);
 	codeSection.append("mov", ret + ",1");
 	codeSection.append("JMP",label2);
@@ -296,29 +299,109 @@ void realCompare(string arg1, string arg2, string ret, int type) {
 	codeSection.append("fwait", "");
 	switch (type) {
 		case LT: {
-			cmpSection(arg1, arg2, ret,"0100H");
+			realCmpSection(arg1, arg2, ret,"0100H");
 		}break;
 		case GT: {
-			cmpSection(arg2, arg1, ret, "0100H");
+			realCmpSection(arg2, arg1, ret, "0100H");
 		}break;
 		case LE: {
-			cmpSection(arg2, arg1, ret, "0100H");
+			realCmpSection(arg2, arg1, ret, "0100H");
 			codeSection.append("xor",ret+",1");
 		}break;
 		case GE: {
-			cmpSection(arg1, arg2, ret, "0100H");
+			realCmpSection(arg1, arg2, ret, "0100H");
 			codeSection.append("xor", ret + ",1");
 		}break;
 		case EQUAL: {
-			cmpSection(arg1, arg2, ret, "4000H");
+			realCmpSection(arg1, arg2, ret, "4000H");
 		}break;
 		case UNEQUAL: {
-			cmpSection(arg1, arg2, ret, "4000H");
+			realCmpSection(arg1, arg2, ret, "4000H");
 			codeSection.append("xor", ret + ",1");
 		}break;
 	}
-	
 }
+
+void intCalculation(const string& arg1, const string& arg2, const string& ret, int type) {
+	string opr;
+	switch (type) {
+		case PLUS: {
+			codeSection.append("mov", ret + "," + arg1);
+			codeSection.append("mov", ret + "," + arg1);
+			codeSection.append("add",ret + "," + arg2);
+		}break;
+		case MINUS: {
+			codeSection.append("mov", ret + "," + arg1);
+			codeSection.append("mov", ret + "," + arg1);
+			codeSection.append("sub", ret + "," + arg2);
+		}break;
+		case AND: {
+			codeSection.append("mov", ret + "," + arg1);
+			codeSection.append("mov", ret + "," + arg1);
+			codeSection.append("and", ret + "," + arg2);
+		}break;
+		case OR: {
+			codeSection.append("mov", ret + "," + arg1);
+			codeSection.append("mov", ret + "," + arg1);
+			codeSection.append("sub", ret + "," + arg2);
+		}break;
+		case MUL: {
+			codeSection.append("mov","edx,0");
+			codeSection.append("mov", "eax,"+arg1);
+			codeSection.append("imul", arg2);
+			codeSection.append("mov", ret + ",eax");
+		}break;
+		case DIV: {
+			codeSection.append("mov", "edx,0");
+			codeSection.append("mov", "eax," + arg1);
+			codeSection.append("idiv", arg2);
+			codeSection.append("mov", ret + ",eax");
+		}break;
+		case MOD: {
+			codeSection.append("mov", "edx,0");
+			codeSection.append("mov", "eax," + arg1);
+			codeSection.append("idiv", arg2);
+			codeSection.append("mov", ret + ",edx");
+		}break;
+	}
+}
+
+void intCmpSection(const string& arg1, const string& arg2, const string& ret, const string& j) {
+	string label1 = "L" + intToString(labels++);
+	string label2 = "L" + intToString(labels++);
+	codeSection.append(j, label1);
+	codeSection.append("MOV", ret, "0");
+	codeSection.append("JMP", label2);
+	codeSection.append(label1, ":");
+	codeSection.append("MOV", ret+ ",1");
+	codeSection.append(label2, ":");
+}
+void intCompare(const string& arg1, const string& arg2, const string& ret, int type) {
+	switch (type)
+	{
+		case LT: {
+			intCmpSection(arg1, arg2, ret, "JL");
+		}break;
+		case GT: {
+			intCmpSection(arg1, arg2, ret, "JG");
+		}break;
+		case LE: {
+			intCmpSection(arg1, arg2, ret, "JLE");
+		}break;
+		case GE: {
+			intCmpSection(arg1, arg2, ret, "JGE");
+		}break;
+		case EQUAL: {
+			intCmpSection(arg1, arg2, ret, "JE");
+		}break;
+		case UNEQUAL: {
+			intCmpSection(arg1, arg2, ret, "JNE");
+		}break;
+	default:
+		break;
+	}
+}
+
 
 
 //vector<string> code_result;
@@ -340,7 +423,13 @@ bool GenAss(midcode ptac, midcode tac, midcode ntac){
 		break;
 	case CMP:
 		//###############################
+
+		//lzt--int
 		codeSection.append("CMP", FindReg(tac.arg1,1), FindReg(tac.arg2,2));
+		//lzt--real
+		//codeSection.append("fld", arg1);
+		//codeSection.append("fcom", arg2);
+
 		break;
 	case ROUTINE_BODY:
 		// Main process going
@@ -386,65 +475,40 @@ bool GenAss(midcode ptac, midcode tac, midcode ntac){
 		codeSection.append("MOV", FindReg(tac.arg1, 1));
 		codeSection.append("PUSH", FindReg(tac.arg1, 1));
 		break;
-	case GE:{
-		codeSection.append("CMP", FindReg(tac.arg1, 1), FindReg(tac.arg2, 2));
-		string l1 = "L" + intToString(labels++);
-		string l2 = "L" + intToString(labels++);
-		codeSection.append("JGE", l1);
-		codeSection.append("MOV", FindReg(tac.result, 1), "0");
-		codeSection.append("JMP", l2);
-		codeSection.append(l1, ":");
-		codeSection.append("MOV", FindReg(tac.result, 1), "1");
-		codeSection.append(l2, ":");
-		/*CMP arg1,arg2
-		jge L1
-		mov res, false
-		jmp L2
-		L1:
-		mov res ,true
-		L2:
-		*/
-		break;
-	}
+
+	//lzt - compare
+	case GE:
 	case GT:
-
-		break;
 	case LE:
-
-		break;
 	case LT:
-
-		break;
 	case EQUAL:
+	case UNEQUAL: {
+		string arg1, arg2, ret;
+		//is int
+		intCompare(arg1, arg2, ret, tac.op);
+		//is real
+		realCompare(arg1, arg2, ret, tac.op);
+	}break;
 
-		break;
-	case UNEQUAL:
-
-		break;
+	//lzt - calculate
 	case OR:
-
-		break;
 	case AND:
-
-		break;
-	case NOT:
-
-		break;
 	case PLUS:
-
-		break;
 	case MINUS:
-
-		break;
 	case MUL:
-
-		break;
 	case DIV:
-
-		break;
-	case MOD:
-
-		break;
+	case MOD: {
+		string arg1, arg2, ret;
+		//is int
+		intCalculation(arg1, arg2, ret, tac.op);
+		//is real
+		realCalculation( arg1, arg2, ret,tac.op);
+	}break;
+	case NOT: {
+		string arg, ret;
+		codeSection.append("mov", ret + "," + arg);
+		codeSection.append("xor",ret+" ,1");
+	}break;
 	}
 	return false;
 }
