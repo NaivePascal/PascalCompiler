@@ -195,6 +195,7 @@ Arg GenId(nodeType* pnode){
 	Arg res;
 	res.type = ID;
 	res.id = lookupSymbol((pnode->id).sValue);
+	res.cs = (pnode->id).sValue;
 	/*
 	switch (symbol.symbolType){
 	case SymbolType::DATA: {
@@ -682,17 +683,17 @@ Arg GenOpr(nodeType* pnode){
 			}
 			tmp.op = CALL;
 			tmp.arg1 = GenId(child[0]);
-			tmp.result.id = "tmp" + intToString(tmps);
-			tmps++;
+			tmp.result.id = tmp.arg1.id;
+			tmp.result.cs = "tmp" + intToString(tmps);
 			tmp.result.temporary = true;
+			tmps++;
 			midcode_list.push_back(tmp);
         break;
         /// Array Index
 		case LB:
 			tmp.op = ASSIGN;
-			tmp.result.id = "tmp" + intToString(tmps);
+			tmp.result.cs = "tmp" + intToString(tmps);
 			tmps++;
-
 			tmp.result.type = (type_equal(tp(SYS_TYPE_INTEGER), pnode->exp)) ? REAL : INTEGER;
 			tmp.result.temporary = true;
 			tmp.arg1 = GenId(child[0]);
@@ -701,17 +702,17 @@ Arg GenOpr(nodeType* pnode){
 			res = tmp.result;
         break;
 		case DOT:
-			tmp.op = ASSIGN;
-			tmp.result.id = "tmp" + intToString(tmps);
-			tmps++;
-
-			tmp.result.type = (type_equal(tp(SYS_TYPE_INTEGER), pnode->exp)) ? REAL : INTEGER;
+			res.type = ID;
+			res.id = lookupSymbol(GenId(child[0]).cs + "." + GenId(child[1]).cs);
+			/*tmp.op = ASSIGN;
+			tmp.result.cs = "tmp" + intToString(tmps);
+			tmps++;	
+			tmp.result.id = pnode->exp;
 			tmp.result.temporary = true;
 			tmp.arg1 = GenId(child[0]);
-			tmp.arg2.type = INTEGER;
-			tmp.arg2.ci = 0;
+			tmp.arg2 = GenId(child[1]);
 			midcode_list.push_back(tmp);
-			res = tmp.result;
+			res = tmp.result;*/
         break;
         case ARGS_LIST:
 			tmp.op = PARAM;
@@ -791,25 +792,8 @@ Arg GenCode(nodeType* pnode){
 string printArg(Arg in){
 	string res;
 	if (in.temporary)
-		return in.id;
-	if (in.ifID){
-		switch (in.type){
-		case SYS_TYPE_BOOL:
-			res = intToString(in.cb);
-			break;
-		case SYS_TYPE_CHAR:
-			res = intToString(in.cc);
-			break;
-		case SYS_TYPE_REAL:
-			res = intToString(in.cr);
-			break;
-		case SYS_TYPE_INTEGER:
-			res = intToString(in.ci);
-			break;
-		}
-	}
-	else{
-		switch (in.type){
+		return in.cs;
+	switch (in.type){
 		case INTEGER:
 			res = intToString(in.ci);
 			break;
@@ -826,7 +810,7 @@ string printArg(Arg in){
 			res = intToString(in.cb);
 			break;
 		case ID:
-			res = in.id;
+			res = in.cs;
 			break;
 		case SYS_PROC:
 			res = intToString(in.proc);
@@ -834,7 +818,6 @@ string printArg(Arg in){
 		case SYS_FUNCT:
 			res = intToString(in.func);
 			break;
-		}
 	}
 	return res;
 }
@@ -855,9 +838,6 @@ int Gen_Drive(nodeType*  root,const char * outputfile){
     int size_param;
     char buf[100000];
 
-    codef = fopen("code.asm","w");
-    dataf = fopen("data.asm","w");
-
 	enter_scope();
     GenCode(root);
 	exit_scope();
@@ -865,20 +845,6 @@ int Gen_Drive(nodeType*  root,const char * outputfile){
 	printTAC();
     //size_param = leaveScope();
 
-    fclose(codef);
-    fclose(dataf);
 
-    ff = fopen(outputfile, "w");
-    codef = fopen("code.asm","r");
-    dataf = fopen("data.asm","r");
-    while(fgets(buf, BUFSIZ,dataf)!=NULL){
-        fputs(buf,ff);
-    }
-    while(fgets(buf, BUFSIZ,codef)!=NULL){
-        fputs(buf,ff);
-    }
-	fclose(codef);
-	fclose(dataf);
-	fclose(ff);
 	return 0;
 }

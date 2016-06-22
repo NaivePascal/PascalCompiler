@@ -323,6 +323,11 @@ void realCompare(string arg1, string arg2, string ret, int type) {
 
 //vector<string> code_result;
 
+string FindReg(Arg t,int i){
+	return "";
+}
+
+
 /// zrz : different type
 bool GenAss(midcode ptac, midcode tac, midcode ntac){
 	char assemb[1000];
@@ -331,20 +336,23 @@ bool GenAss(midcode ptac, midcode tac, midcode ntac){
 		codeSection.append("JMP", tac.arg1.cs);
 		break;
 	case LABEL:
-		codeSection.append(tac.arg1.cs, ":");
+		codeSection.append(tac.arg1.cs,":");
 		break;
 	case CMP:
 		//###############################
-		codeSection.append("CMP", tac.arg1.cs);
+		codeSection.append("CMP", FindReg(tac.arg1,1), FindReg(tac.arg2,2));
 		break;
 	case ROUTINE_BODY:
 		// Main process going
+		codeSection.append(".STARTUP");
 		break;
 	case RET:
 		// Call back
+		//#########################################################
 		//Have to judge that it is a function or procedure
 		//so that we can know if we need to return value
 
+		codeSection.append("RET");
 		break;
 	case CALL:
 		if (tac.arg1.type == SYS_PROC){
@@ -365,9 +373,11 @@ bool GenAss(midcode ptac, midcode tac, midcode ntac){
 		break;
 	case PROCEDURE:
 		// procedure declaration
+		codeSection.append(tac.arg1.cs, "PROC", "NEAR");
 		break;
 	case ASSIGN:
-		// assign an value to another simple value
+		// assign an value to another simple value#####################################
+		codeSection.append("MOV", FindReg(tac.result,1), FindReg(tac.arg1,2));
 		break;
 	case ASSIGN_STMT:
 
@@ -376,15 +386,14 @@ bool GenAss(midcode ptac, midcode tac, midcode ntac){
 		
 		break;
 	case GE:{
-		codeSection.append("MOV", "eax", "ebx");
-		codeSection.append("CMP", "eax", "ebx");
+		codeSection.append("CMP", FindReg(tac.arg1, 1), FindReg(tac.arg2, 2));
 		string l1 = "L" + intToString(labels++);
 		string l2 = "L" + intToString(labels++);
 		codeSection.append("JGE", l1);
-		codeSection.append("MOV", "eax", "0");
+		codeSection.append("MOV", FindReg(tac.result, 1), "0");
 		codeSection.append("JMP", l2);
 		codeSection.append(l1, ":");
-		codeSection.append("MOV", "eax", "1");
+		codeSection.append("MOV", FindReg(tac.result, 1), "1");
 		codeSection.append(l2, ":");
 		/*CMP arg1,arg2
 		jge L1
@@ -393,7 +402,6 @@ bool GenAss(midcode ptac, midcode tac, midcode ntac){
 		L1:
 		mov res ,true
 		L2:
-		
 		*/
 		break;
 	}

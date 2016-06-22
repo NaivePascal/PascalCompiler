@@ -56,7 +56,7 @@ struct Arg{
 	int func;
 
 	Arg(){
-		type = INTEGER;
+		type = OF;
 		temporary = false;
 		ifinsubroutine = false;
 		addr = 0;
