@@ -151,8 +151,19 @@ void GenControl(nodeType* pnode, Arg label1, Arg label2){
 	}
 	midcode_list.push_back(falsego);
 }
-void GenControl_for(Arg i, Arg label1, Arg label2){
-	//GenControl(pnode, label1, label2);
+void GenControl_for(nodeType* i, nodeType* max, Arg label1, Arg label2){
+	midcode tmp1, tmp2;
+	tmp1.op = CMP;
+	tmp1.arg1 = GenCode(i);
+	tmp1.arg2 = GenCode(max);
+	midcode_list.push_back(tmp1);
+	tmp2.op = CMP_LE;
+	tmp2.arg1 = label1;
+	midcode_list.push_back(tmp2);
+	midcode falsego;
+	falsego.op = GOTO;
+	falsego.arg1 = label2;
+	midcode_list.push_back(falsego);
 }
 
 /// Generate Constant
@@ -379,12 +390,18 @@ Arg GenOpr(nodeType* pnode){
 			}
 			//Parameter require
 			else if (pnode->opr.nops == 2){
-				tmp.op = PARAM;  //args_list | sysproc
+				//args_list | sysproc
 				if (child[1]->opr.oper == LP)
 					GenCode(child[1]);
 				else{
-					tmp.arg1 = GenCode(child[1]);
-					midcode_list.push_back(tmp);
+					if (child[1]->type == typeOpr && child[1]->opr.oper == ARGS_LIST){
+						GenCode(child[1]);
+					}
+					else{
+						tmp.op = PARAM;
+						tmp.arg1 = GenCode(child[1]);
+						midcode_list.push_back(tmp);
+					}
 				}
 				tmp.op = PROCEDURE;
 				tmp.arg1 = GenCode(child[0]);
@@ -501,7 +518,7 @@ Arg GenOpr(nodeType* pnode){
 			tmp.arg1 = arg1;
 			midcode_list.push_back(tmp);
 			// Expr control
-			GenControl_for(tmp.result, arg2, arg3);
+			GenControl_for(child[0],child[2], arg2, arg3);
 			// stmt
 			// Label stmt
 			tmp.op = LABEL;
@@ -645,6 +662,8 @@ Arg GenOpr(nodeType* pnode){
 			GenCode(child[0]);
 		break;
     }
+	if (tmp.arg1.type == 113)
+		arg1 = arg2;
 	return res;
 }
 
