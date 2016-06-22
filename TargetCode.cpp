@@ -383,7 +383,8 @@ bool GenAss(midcode ptac, midcode tac, midcode ntac){
 
 		break;
 	case PARAM:
-		
+		codeSection.append("MOV", FindReg(tac.arg1, 1));
+		codeSection.append("PUSH", FindReg(tac.arg1, 1));
 		break;
 	case GE:{
 		codeSection.append("CMP", FindReg(tac.arg1, 1), FindReg(tac.arg2, 2));
