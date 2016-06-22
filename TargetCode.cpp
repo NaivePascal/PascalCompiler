@@ -9,7 +9,9 @@
 Section dataSection;
 Section codeSection;
 
+
 string spaceStr[4] = { "BYTE" ,"SDWORD", "REAL8", "DWORD"};
+extern int labels;
 
 Space typeSpace(int simpleType)
 {
@@ -213,25 +215,36 @@ void sysFuncAbs(int type,const string& arg, const string& ret) {
 }
 
 void sysFuncChr(const string& arg, const string& ret) {
+	codeSection.append("mov","eax,"+arg);
+	codeSection.append("mov", ret + ",al");
 	// int to char
 }
 
 void sysFuncOdd(const string& arg, const string& ret) {
+	codeSection.append("mov", ret+","+arg);
+	codeSection.append("and", ret + "," + "1");
 	// odd = true
 }
 
 void sysFuncOrd(const string& arg, const string& ret) {
+	codeSection.append("mov", "eax, 0");
+	codeSection.append("mov","al,"+arg);
+	codeSection.append("mov", ret + ",eax");
 	// char to int
 }
 
 void sysFuncPred(const string & arg, const string & ret)
 {
 	// the last number , char or enum
+	codeSection.append("mov", ret + "," + arg);
+	codeSection.append("sub", ret + ",1");
 }
 
 void sysFuncSucc(const string & arg, const string & ret)
 {
 	// the next number, char or enum
+	codeSection.append("mov", ret + "," + arg);
+	codeSection.append("add", ret + ",1");
 }
 
 
@@ -263,11 +276,47 @@ void realCalculate(int type, const string& arg1, const string& arg2, const strin
 	codeSection.append("fstp",ret);
 }
 
-void realCompare(string arg1, string arg2, string ret) {
+
+void cmpSection(string arg1, string arg2, string ret, string constant) {
+	codeSection.append("and", "ax,"+constant);
+	string label1 = intToString(labels++);
+	string label2 = intToString(labels++);
+	codeSection.append("JNE",label1);
+	codeSection.append("mov", ret + ",1");
+	codeSection.append("JMP",label2);
+	codeSection.append(label1, ":");
+	codeSection.append("mov", ret + ",0");
+	codeSection.append(label2,":");
+}
+
+void realCompare(string arg1, string arg2, string ret, int type) {
 	codeSection.append("fld", arg1);
 	codeSection.append("fcom", arg2);
 	codeSection.append("fstsw", ret);
 	codeSection.append("fwait", "");
+	switch (type) {
+		case LT: {
+			cmpSection(arg1, arg2, ret,"0100H");
+		}break;
+		case GT: {
+			cmpSection(arg2, arg1, ret, "0100H");
+		}break;
+		case LE: {
+			cmpSection(arg2, arg1, ret, "0100H");
+			codeSection.append("xor",ret+",1");
+		}break;
+		case GE: {
+			cmpSection(arg1, arg2, ret, "0100H");
+			codeSection.append("xor", ret + ",1");
+		}break;
+		case EQUAL: {
+			cmpSection(arg1, arg2, ret, "4000H");
+		}break;
+		case UNEQUAL: {
+			cmpSection(arg1, arg2, ret, "4000H");
+			codeSection.append("xor", ret + ",1");
+		}break;
+	}
 	
 }
 
