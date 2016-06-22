@@ -25,13 +25,135 @@ map<string, Scope>  gen_symbol_table;
 
 /// Control flow function
 /// if
-void GenControl_if(nodeType* pnode, Arg label1, Arg label2){}
-void GenControl_while(nodeType* pnode,Arg label1, Arg label2){}
-void GenControl_repeat(nodeType* pnode, Arg label1, Arg label2){}
-void GenControl_follow(nodeType* pnode, Arg label1, Arg label2){}
-void GenControl_for(nodeType* pnode, Arg label1, Arg label2){}
-
-Arg GenCode(nodeType* pnode);
+void GenControl(nodeType* pnode, Arg label1, Arg label2){
+	nodeType** child = pnode->opr.op;
+	midcode falsego;
+	falsego.op = GOTO;
+	falsego.arg1 = label2;
+	switch (pnode->opr.oper){
+		case AND:{
+			midcode tmp;
+			Arg arg1;
+			//First
+			arg1.type = STRING;
+			arg1.cs = "L" + intToString(labels);
+			labels++;
+			GenControl(child[0], arg1, label2);
+			//insert label for new
+			tmp.op = LABEL;
+			tmp.arg1 = arg1;
+			midcode_list.push_back(tmp);
+			//Second
+			GenControl(child[1], label1, label2);
+			break;
+		}
+		case OR:{
+			midcode tmp;
+			Arg arg1;
+			//First
+			arg1.type = STRING;
+			arg1.cs = "L" + intToString(labels);
+			labels++;
+			GenControl(child[0], label1, arg1);
+			//insert label for new
+			tmp.op = LABEL;
+			tmp.arg1 = arg1;
+			midcode_list.push_back(tmp);
+			//Second
+			GenControl(child[1], label1, label2);
+			break;
+		}
+		case GE:{
+			midcode tmp1, tmp2;
+			tmp1.op = CMP;
+			tmp1.arg1 = GenCode(child[0]);
+			tmp1.arg2 = GenCode(child[1]);
+			midcode_list.push_back(tmp1);
+			tmp2.op = CMP_GE;
+			tmp2.arg1 = label1;
+			midcode_list.push_back(tmp2);
+			break;
+		}
+		case GT:{
+			midcode tmp1, tmp2;
+			tmp1.op = CMP;
+			tmp1.arg1 = GenCode(child[0]);
+			tmp1.arg2 = GenCode(child[1]);
+			midcode_list.push_back(tmp1);
+			tmp2.op = CMP_GT;
+			tmp2.arg1 = label1;
+			midcode_list.push_back(tmp2);
+			break;
+		}
+		case LE:{
+			midcode tmp1, tmp2;
+			tmp1.op = CMP;
+			tmp1.arg1 = GenCode(child[0]);
+			tmp1.arg2 = GenCode(child[1]);
+			midcode_list.push_back(tmp1);
+			tmp2.op = CMP_LE;
+			tmp2.arg1 = label1;
+			midcode_list.push_back(tmp2);
+			break;
+		}
+		case LT:{
+			midcode tmp1, tmp2;
+			tmp1.op = CMP;
+			tmp1.arg1 = GenCode(child[0]);
+			tmp1.arg2 = GenCode(child[1]);
+			midcode_list.push_back(tmp1);
+			tmp2.op = CMP_LT;
+			tmp2.arg1 = label1;
+			midcode_list.push_back(tmp2);
+			break;
+		}
+		case EQUAL:{
+			midcode tmp1, tmp2;
+			tmp1.op = CMP;
+			tmp1.arg1 = GenCode(child[0]);
+			tmp1.arg2 = GenCode(child[1]);
+			midcode_list.push_back(tmp1);
+			tmp2.op = CMP_EQUAL;
+			tmp2.arg1 = label1;
+			midcode_list.push_back(tmp2);
+			break;
+		}
+		case UNEQUAL:{
+			midcode tmp1, tmp2;
+			tmp1.op = CMP;
+			tmp1.arg1 = GenCode(child[0]);
+			tmp1.arg2 = GenCode(child[1]);
+			midcode_list.push_back(tmp1);
+			tmp2.op = CMP_UNEQUAL;
+			tmp2.arg1 = label1;
+			midcode_list.push_back(tmp2);
+			break;
+		}
+		case NOT:{
+			midcode tmp;
+			/*tmp.op = CMP;
+			tmp.arg1 = GenCode(child[0]);
+			midcode_list.push_back(tmp);*/
+			tmp.op = CMP_NOT;
+			tmp.arg1 = label1;
+			tmp.arg2 = GenCode(child[0]);
+			midcode_list.push_back(tmp);
+			break;
+		}
+		default:{
+			midcode tmp;
+			tmp.op = CMP_ID;
+			tmp.arg1 = label1;
+			tmp.arg2 = GenCode(child[0]);
+			midcode_list.push_back(tmp);
+			break;
+		}
+	}
+	midcode_list.push_back(falsego);
+}
+void GenControl_for(Arg i, Arg label1, Arg label2){
+	//GenControl(pnode, label1, label2);
+}
 
 /// Generate Constant
 Arg GenCon(nodeType* pnode){
@@ -276,23 +398,30 @@ Arg GenOpr(nodeType* pnode){
 			arg2.type = STRING;
 			arg2.cs = "L" + intToString(labels);
 			labels++;
+			arg3.type = STRING;
+			arg3.cs = "L" + intToString(labels);
+			labels++;
 			//0 expression
-			GenControl_if(child[0], arg1, arg2);
+			GenControl(child[0], arg1, arg2);
 			//1 stmt
+			// Label if
+			tmp.op = LABEL;
+			tmp.arg1 = arg1;
+			midcode_list.push_back(tmp);
 			GenCode(child[1]);
 			//   jump
 			tmp.op = GOTO;
-			tmp.arg1 = arg2;
+			tmp.arg1 = arg3;
 			midcode_list.push_back(tmp);
 			//2 else stmt
 			// Label else
 			tmp.op = LABEL;
-			tmp.arg1 = arg1;
+			tmp.arg1 = arg2;
 			midcode_list.push_back(tmp);
 			GenCode(child[2]);
 			// Label follow
 			tmp.op = LABEL;
-			tmp.arg1 = arg2;
+			tmp.arg1 = arg3;
 			midcode_list.push_back(tmp);
         break;
 		case REPEAT:
@@ -309,7 +438,7 @@ Arg GenOpr(nodeType* pnode){
 			//0 stmt
 			GenCode(child[0]);
 			//1 expression
-			GenControl_repeat(child[1], arg1, arg2);
+			GenControl(child[1], arg2, arg1);
 			//   jump
 			tmp.op = GOTO;
 			tmp.arg1 = arg1;
@@ -326,13 +455,20 @@ Arg GenOpr(nodeType* pnode){
 			arg2.type = STRING;
 			arg2.cs = "L" + intToString(labels);
 			labels++;
+			arg3.type = STRING;
+			arg3.cs = "L" + intToString(labels);
+			labels++;
 			// Label loop
 			tmp.op = LABEL;
 			tmp.arg1 = arg1;
 			midcode_list.push_back(tmp);
 			//0 expression
-			GenControl_while(child[0], arg1, arg2);
+			GenControl(child[0], arg2, arg3);
 			//1 stmt
+			// Label stmt
+			tmp.op = LABEL;
+			tmp.arg1 = arg2;
+			midcode_list.push_back(tmp);
 			GenCode(child[1]);
 			//   jump
 			tmp.op = GOTO;
@@ -340,7 +476,7 @@ Arg GenOpr(nodeType* pnode){
 			midcode_list.push_back(tmp);
 			// Label follow
 			tmp.op = LABEL;
-			tmp.arg1 = arg2;
+			tmp.arg1 = arg3;
 			midcode_list.push_back(tmp);
         break;
 		case FOR:
@@ -349,6 +485,9 @@ Arg GenOpr(nodeType* pnode){
 			labels++;
 			arg2.type = STRING;
 			arg2.cs = "L" + intToString(labels);
+			labels++;
+			arg3.type = STRING;
+			arg3.cs = "L" + intToString(labels);
 			labels++;
 			// Initialize the id
 			tmp.op = ASSIGN;
@@ -361,24 +500,28 @@ Arg GenOpr(nodeType* pnode){
 			tmp.op = LABEL;
 			tmp.arg1 = arg1;
 			midcode_list.push_back(tmp);
+			// Expr control
+			GenControl_for(tmp.result, arg2, arg3);
 			// stmt
+			// Label stmt
+			tmp.op = LABEL;
+			tmp.arg1 = arg2;
+			midcode_list.push_back(tmp);
 			GenCode(child[3]);
-			// Add
+			// Add 1
 			tmp.op = (pnode->opr).oper;
 			tmp.result = GenCode(child[0]);
 			tmp.arg1 = GenCode(child[0]);
 			tmp.arg2.type = INTEGER;
 			tmp.arg2.ci = 1;
 			midcode_list.push_back(tmp);
-			// Expr control
-			GenControl_for(child[2], arg1, arg2);
 			// jump
 			tmp.op = GOTO;
 			tmp.arg1 = arg1;
 			midcode_list.push_back(tmp);
 			// Label follow
 			tmp.op = LABEL;
-			tmp.arg1 = arg2;
+			tmp.arg1 = arg3;
 			midcode_list.push_back(tmp);
         break;
         case CASE:
@@ -401,7 +544,6 @@ Arg GenOpr(nodeType* pnode){
 		case UNEQUAL:
 		case OR:
 		case AND:
-		case NOT:
 			tmp.op = (pnode->opr).oper;
 			tmp.result.id = "tmp" + intToString(tmps);
 			tmps++;
@@ -411,6 +553,17 @@ Arg GenOpr(nodeType* pnode){
 			tmp.arg2 = GenCode(child[1]);
 			midcode_list.push_back(tmp);
 			res = tmp.result;
+			break;
+		case NOT:
+			tmp.op = (pnode->opr).oper;
+			tmp.result.id = "tmp" + intToString(tmps);
+			tmps++;
+			tmp.result.type = BOOL;
+			tmp.result.temporary = true;
+			tmp.arg1 = GenCode(child[0]);
+			midcode_list.push_back(tmp);
+			res = tmp.result;
+			break;
         break;
         case PLUS:
         case MINUS:

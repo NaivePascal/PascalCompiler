@@ -22,9 +22,18 @@ typedef enum{
 	PARAM, CALL,
 }opt;*/
 
-#define PARAM 113
-#define CALL 114
-#define CALLEE 115
+#define PARAM		113
+#define CALL		114
+#define CALLEE		115
+#define CMP			1
+#define CMP_NOT		117
+#define CMP_ID		118
+#define CMP_EQUAL	119
+#define CMP_UNEQUAL 120
+#define CMP_GT		121
+#define CMP_GE		122
+#define CMP_LT		123
+#define CMP_LE		124
 
 ///The 3-address-code arg structure
 typedef struct{
@@ -54,5 +63,15 @@ void init_Midcode();
 
 /// The Drive function to work with head and tail
 int Gen_Drive(nodeType*  root, const char * outputfile);
+void GenControl(nodeType* pnode, Arg label1, Arg label2);
+Arg GenCode(nodeType* pnode);
+Arg GenCon(nodeType* pnode);
+Arg GenId(nodeType* pnode);
+Arg GenOpr(nodeType* pnode);
+int GenType(nodeType* pnode);
+Arg GenSysProc(nodeType* pnode);
+Arg GenSysFunc(nodeType* pnode);
+void GenLink(nodeType* pnode);
+string printArg(Arg in);
 
 #endif
