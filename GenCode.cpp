@@ -19,6 +19,7 @@ FILE* ff=NULL;
 
 int labels = 0;
 int tmps = 0;
+int main = 0;
 map<string, Scope>  gen_symbol_table;
 
 //midcode_list
@@ -213,6 +214,14 @@ Arg GenOpr(nodeType* pnode){
 		arg1 = arg2;
 	}
 	switch ((pnode->opr).oper){
+		case ROUTINE_BODY:
+			tmp.op = ROUTINE_BODY;
+			tmp.arg1.type = STRING;
+			tmp.arg1.cs = "MAIN";
+			midcode_list.push_back(tmp);
+			main = midcode_list.size() - 1;
+			GenCode(child[0]);
+		break;
 		//Declaration
 		case ROUTINE:
 		case CONST_EXPR_LIST:

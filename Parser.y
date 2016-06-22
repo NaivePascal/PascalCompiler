@@ -352,7 +352,7 @@ function_head	:  FUNCTION  ID  parameters  COLON  simple_type_decl
 
 procedure_decl	:  procedure_head  SEMI  sub_routine  SEMI
 				{
-					opr(PROCEDURE_DECL,2,$1,$3);
+					$$ = opr(PROCEDURE_DECL,2,$1,$3);
 					// a procedure is finished, now exit its scope
 					exit_scope();
 				}
@@ -405,7 +405,7 @@ val_para_list	: name_list
 				;
 
 routine_body	: compound_stmt
-				{$$=$1;}
+				{$$=opr(ROUTINE_BODY,1,$1);}
 				;
 
 compound_stmt	: PBEGIN  stmt_list  END	
