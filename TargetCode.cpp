@@ -211,6 +211,29 @@ void sysFuncAbs(int type,const string& arg, const string& ret) {
 
 }
 
+void sysFuncChr(const string& arg, const string& ret) {
+	// int to char
+}
+
+void sysFuncOdd(const string& arg, const string& ret) {
+	// odd = true
+}
+
+void sysFuncOrd(const string& arg, const string& ret) {
+	// char to int
+}
+
+void sysFuncPred(const string & arg, const string & ret)
+{
+	// the last number , char or enum
+}
+
+void sysFuncSucc(const string & arg, const string & ret)
+{
+	// the next number, char or enum
+}
+
+
 void realCalculate(int type, const string& arg1, const string& arg2, const string& ret) {
 	codeSection.append("fld", arg1);
 	string opr;
