@@ -7,11 +7,15 @@
 enum Space {
 	BYTE,//char
 	SDWORD,//int
-	REAL4,//float
+	REAL8,//float
 	DWORD//unsigned int
 };
 struct Sentence {
 	vector<string> words;
+
+	Sentence(string word1) {
+		words.push_back(word1);
+	}
 
 	Sentence(string word1, string word2) {
 		words.push_back(word1);
@@ -45,9 +49,12 @@ struct Sentence {
 
 struct Section {
 	vector<Sentence> sentences;
-
 	void append(const Sentence &sentence) {
 		sentences.push_back(sentence);
+	}
+
+	void append(string word1) {
+		sentences.push_back(Sentence(word1));
 	}
 
 	void append(string word1, string word2) {
@@ -56,6 +63,10 @@ struct Section {
 
 	void append(string word1, string word2, string word3) {
 		sentences.push_back(Sentence(word1, word2, word3));
+	}
+
+	void append(string word1, string word2, string word3, string word4) {
+		sentences.push_back(Sentence(word1, word2, word3, word4));
 	}
 
 	friend ostream &operator<<(ostream &out, const Section& section) {

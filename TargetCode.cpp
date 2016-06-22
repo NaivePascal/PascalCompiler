@@ -9,13 +9,13 @@
 Section dataSection;
 Section codeSection;
 
-string spaceStr[4] = { "BYTE" ,"SDWORD", "REAL4", "DWORD"};
+string spaceStr[4] = { "BYTE" ,"SDWORD", "REAL8", "DWORD"};
 
 Space typeSpace(int simpleType)
 {
 	switch (simpleType) {
 		case SYS_TYPE_INTEGER:return Space::SDWORD;
-		case SYS_TYPE_REAL:return Space::REAL4;
+		case SYS_TYPE_REAL:return Space::REAL8;
 		case SYS_TYPE_CHAR:return Space::BYTE;
 		case SYS_TYPE_BOOL:return Space::BYTE;
 	}
@@ -91,7 +91,7 @@ void declare(string name, nodeType *node)
 			break;
 		}
 		case REAL: {
-			space = Space::REAL4;
+			space = Space::REAL8;
 			ss << node->con.real;
 			ss >> valuestr;
 			break;

@@ -6,5 +6,5 @@ begin
   read(a);
   read(b);
   x[a] := 6.783;
-  write(a,b,x[a])
+  write(a,b,x[a]);
 end.
