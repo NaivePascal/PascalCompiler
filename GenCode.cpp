@@ -303,9 +303,12 @@ Arg GenOpr(nodeType* pnode){
 				GenOpr(child[1]);
         break;
 		case FUNCTION_DECL:{
-			GenOpr(child[0]);
+			arg1 = GenOpr(child[0]);
 			GenOpr(child[1]);
-			tmp.op = CALLEE;
+			tmp.op = RET;
+			midcode_list.push_back(tmp);
+			tmp.op = END;
+			tmp.arg1 = arg1;
 			midcode_list.push_back(tmp);
 			string key = child[0]->opr.op[0]->id.sValue;
 			gen_symbol_table.insert({ key, exit_scope() });
@@ -324,11 +327,12 @@ Arg GenOpr(nodeType* pnode){
 			for (int i = 0; i < types.size(); i++) {
 				insert(parameters[i]->id.sValue, types[i]);
 			}
+			res = tmp.arg1;
 		}break;
 		case PROCEDURE_DECL:{
 			GenOpr(child[0]);
 			GenOpr(child[1]);
-			tmp.op = CALLEE;
+			tmp.op = RET;
 			midcode_list.push_back(tmp);
 			string key = child[0]->opr.op[0]->id.sValue;
 			gen_symbol_table.insert({ key, exit_scope() });

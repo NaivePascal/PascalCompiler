@@ -119,7 +119,7 @@ program_head	: PROGRAM  ID  SEMI
 				;			
 						
 routine			: routine_head  routine_body
-				{$$ = opr(ROUTINE,2,$1,$2);}
+				{$$ = opr(ROUTINE,2,$1,opr(ROUTINE_BODY,1,$2));}
 				;	
 						
 sub_routine		: routine_head  routine_body
@@ -406,7 +406,7 @@ val_para_list	: name_list
 				;
 
 routine_body	: compound_stmt
-				{$$=opr(ROUTINE_BODY,1,$1);}
+				{$$=$1;}
 				;
 
 compound_stmt	: PBEGIN  stmt_list  END	

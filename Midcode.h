@@ -29,7 +29,7 @@ typedef enum{
 
 #define PARAM		113
 #define CALL		114
-#define CALLEE		115
+#define RET			115
 #define CMP			1
 #define CMP_NOT		117
 #define CMP_ID		118

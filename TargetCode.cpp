@@ -271,33 +271,50 @@ void realCompare(string arg1, string arg2, string ret) {
 }
 
 
-vector<string> code_result;
+//vector<string> code_result;
 
 /// zrz : different type
 bool GenAss(midcode tac){
 	char assemb[1000];
 	switch (tac.op){
 	case GOTO:
-		sprintf(assemb, "JMP %s", tac.arg1.cs);
-		code_result.push_back(assemb);
+		codeSection.append("JMP", tac.arg1.cs);
 		break;
 	case LABEL:
-		sprintf(assemb, "%s:", tac.arg1.cs);
-		code_result.push_back(assemb);
+		codeSection.append(tac.arg1.cs, ":");
 		break;
 	case CMP:
+		//###############################
+		codeSection.append("CMP", tac.arg1.cs);
 		break;
 	case ROUTINE_BODY:
 		// Main process going
 		break;
-	case CALLEE:
+	case RET:
 		// Call back
+		//Have to judge that it is a function or procedure
+		//so that we can know if we need to return value
+
 		break;
+	case CALL:
+		if (tac.arg1.type == SYS_PROC){
+
+		}
+		else if (tac.arg1.type == SYS_FUNCT){
+
+		}
+		else{
+			codeSection.append("CALL", tac.arg1.id);
+		}
+		break;
+	case END:
+		codeSection.append(tac.arg1.id,"ENDP");
 	case FUNCTION:
-		// Call function
+		// function declaration
+		codeSection.append(tac.arg1.id,"PROC","NEAR");
 		break;
 	case PROCEDURE:
-		// Call procedure
+		// procedure declaration
 		break;
 	case ASSIGN:
 		// assign an value to another simple value
@@ -306,10 +323,14 @@ bool GenAss(midcode tac){
 
 		break;
 	case PARAM:
-
+		
 		break;
 	case GE:
-
+		/*CMP arg1,arg2
+		jge L1
+		L2:
+		mov res, false
+		L1: mov res ,true*/
 		break;
 	case GT:
 
