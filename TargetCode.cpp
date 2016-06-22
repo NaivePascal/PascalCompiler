@@ -120,6 +120,157 @@ void printTargetCode(ostream & os)
 	os << dataSection;
 }
 
+void insertIOFormatlist(){
+	dataSection.append("zero", "BYTE", "0");
+	dataSection.append("intFmt", "BYTE", "\"%d\", 0");
+	dataSection.append("charFmt", "BYTE", "\"%c\", 0");
+	dataSection.append("realFmt", "BYTE", "\"%lf\", 0");
+	dataSection.append("stringFmt", "BYTE", "\"%s\", 0");
+	dataSection.append("TrueSentence", "BYTE", "\"true\", 0");
+	dataSection.append("FalseSentence", "BYTE", "\"false\", 0");
+}
+
+#include <utility>
+
+void writeArg(const string& arg, int type) {
+	//invoke crt_printf, addr fmtlist, area, area2
+	switch (type) {
+		case INTEGER: {
+			codeSection.append("invoke","crt_printf,addr intFmt,"+arg);
+		}break;
+		case REAL: {
+			codeSection.append("invoke", "crt_printf,addr realFmt," + arg);
+		}break;
+		case CHAR: {
+			codeSection.append("invoke", "crt_printf,addr charFmt," + arg);
+		}break;
+		case STRING: {
+			codeSection.append("invoke", "crt_printf,addr stringFmt,addr" + arg);
+		}break;
+		case BOOL: {
+			codeSection.append("invoke", "crt_printf,addr intFmt," + arg);
+		}break;
+	}
+}
+
+void sysProcWrite(vector<pair<string, int>>& argPairs) {
+	for (auto& arg : argPairs) {
+		writeArg(arg.first, arg.second);
+	}
+}
+
+void sysProcwriteln(vector<pair<string, int>>& argPairs) {
+	sysProcWrite(argPairs);
+	codeSection.append("invoke", "crt_puts,addr zero");
+}
+
+void procStmtRead(const string& arg, int type) {
+	switch (type) {
+	case INTEGER: {
+		codeSection.append("invoke", "crt_scanf,addr intFmt, addr" + arg);
+	}break;
+	case REAL: {
+		codeSection.append("invoke", "crt_scanf,addr realFmt,addr" + arg);
+	}break;
+	case CHAR: {
+		codeSection.append("invoke", "crt_scanf,addr charFmt,addr" + arg);
+	}break;
+	case STRING: {
+		codeSection.append("invoke", "crt_printf,addr stringFmt,addr" + arg);
+	}break;
+	case BOOL: {
+		codeSection.append("invoke", "crt_printf,addr intFmt,addr" + arg);
+	}break;
+	}
+}
+
+void sysFuncSqrt(const string& arg, const string& ret) {
+	codeSection.append("fld", arg);
+	codeSection.append("fsqrt", "");
+	codeSection.append("fstp", ret);
+}
+
+void sysFuncSqr(const string& arg, const string& ret) {
+	codeSection.append("fld", arg);
+	codeSection.append("fmul", arg);
+	codeSection.append("fstp", ret);
+}
+
+void sysFuncAbs(int type,const string& arg, const string& ret) {
+	switch (type) {
+		case INTEGER: {
+			codeSection.append("invoke", "crt_abs," + arg);
+			codeSection.append("mov", ret + ",eax");
+		}break;
+		case REAL: {
+			codeSection.append("fld", arg);
+			codeSection.append("fabs", "");
+			codeSection.append("fstp", ret);
+		}break;
+	}
+
+}
+
+void sysFuncChr(const string& arg, const string& ret) {
+	// int to char
+}
+
+void sysFuncOdd(const string& arg, const string& ret) {
+	// odd = true
+}
+
+void sysFuncOrd(const string& arg, const string& ret) {
+	// char to int
+}
+
+void sysFuncPred(const string & arg, const string & ret)
+{
+	// the last number , char or enum
+}
+
+void sysFuncSucc(const string & arg, const string & ret)
+{
+	// the next number, char or enum
+}
+
+
+void realCalculate(int type, const string& arg1, const string& arg2, const string& ret) {
+	codeSection.append("fld", arg1);
+	string opr;
+	switch (type)
+	{
+		case PLUS:
+		{
+			opr = "fadd";
+		}break;
+		case MINUS:
+		{
+			opr = "fsub";
+		}break;
+		case MUL:
+		{
+			opr = "fmul";
+		}break;
+		case DIV:
+		{
+			opr = "fdiv";
+		}
+		default:
+			break;
+	}
+	codeSection.append(opr,arg2);
+	codeSection.append("fstp",ret);
+}
+
+void realCompare(string arg1, string arg2, string ret) {
+	codeSection.append("fld", arg1);
+	codeSection.append("fcom", arg2);
+	codeSection.append("fstsw", ret);
+	codeSection.append("fwait", "");
+	
+}
+
+
 vector<string> code_result;
 
 /// zrz : different type

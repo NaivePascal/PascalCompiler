@@ -69,6 +69,27 @@ struct Section {
 void GenTargetCode(const vector<midcode>&);
 void declare(string name, nodeType *node);
 
+//real number calculation
+void realCompare(string arg1, string arg2, string ret);
+void realCalculate(int type, const string& arg1, const string& arg2, const string& ret);
+
+//sys func
+void sysFuncAbs(int type, const string& arg, const string& ret);
+void sysFuncSqr(const string& arg, const string& ret);
+void sysFuncSqrt(const string& arg, const string& ret);
+void sysFuncOdd(const string& arg, const string& ret);
+void sysFuncChr(const string& arg, const string& ret);
+void sysFuncOrd(const string& arg, const string& ret);
+void sysFuncPred(const string& arg, const string& ret);
+void sysFuncSucc(const string& arg, const string& ret);
+
+//sys proc
+void procStmtRead(const string& arg, int type);
+void sysProcwriteln(vector<pair<string, int>>& argPairs);
+void sysProcWrite(vector<pair<string, int>>& argPairs);
+void writeArg(const string& arg, int type);
+void insertIOFormatlist();
+
 void printTargetCode(ostream &os);
 
 #endif // __TARGETCODE_H__
