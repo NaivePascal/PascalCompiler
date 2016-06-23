@@ -472,7 +472,6 @@ bool GenAss(midcode ptac, midcode tac, midcode ntac){
 
 		break;
 	case PARAM:
-		codeSection.append("MOV", FindReg(tac.arg1, 1));
 		codeSection.append("PUSH", FindReg(tac.arg1, 1));
 		break;
 
@@ -500,6 +499,27 @@ bool GenAss(midcode ptac, midcode tac, midcode ntac){
 	case MOD: {
 		string arg1, arg2, ret;
 		//is int
+		if (tac.arg1.id.symbolType == FUNC){
+
+		}
+		else if (tac.arg1.id.type.is_record){
+
+		}
+		else if (tac.arg1.id.type.base.is_array){
+
+		}
+		else if (tac.arg1.id.type.base.index.type == ENUM_T){
+
+		}
+		else if (tac.arg1.id.type.base.index.type == RANGE_T){
+
+		}
+		else if (tac.arg1.id.type.base.index.type == INT_T || tac.arg1.id.type.base.index.type == BOOL_T){
+			
+		}
+		else if (tac.arg1.id.type.base.index.type == REAL_T){
+
+		}
 		intCalculation(arg1, arg2, ret, tac.op);
 		//is real
 		realCalculation( arg1, arg2, ret,tac.op);
@@ -509,15 +529,6 @@ bool GenAss(midcode ptac, midcode tac, midcode ntac){
 		codeSection.append("mov", ret + "," + arg);
 		codeSection.append("xor",ret+" ,1");
 	}break;
-	case CMP_NOT:{
-		break;
-	}
-	case CMP_ID:{
-		codeSection.append("CMP", FindReg(tac.arg2),);
-		codeSection.append("JE", tac.arg1.cs);
-		codeSection.append("JMP", tac.arg1.cs);
-		break;
-	}
 	case CMP_EQUAL:{
 		codeSection.append("JE", tac.arg1.cs);
 		break;

@@ -32,7 +32,6 @@ typedef enum{
 #define RET			115
 #define CMP			1
 #define CMP_NOT		117
-#define CMP_ID		118
 #define CMP_EQUAL	119
 #define CMP_UNEQUAL 120
 #define CMP_GT		121
