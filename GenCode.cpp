@@ -129,21 +129,22 @@ void GenControl(nodeType* pnode, Arg label1, Arg label2){
 		}
 		case NOT:{
 			midcode tmp;
-			/*tmp.op = CMP;
-			tmp.arg1 = GenCode(child[0]);
-			midcode_list.push_back(tmp);*/
-			tmp.op = CMP_NOT;
-			tmp.arg1 = label1;
-			tmp.arg2 = GenCode(child[0]);
-			midcode_list.push_back(tmp);
+			GenControl(child[0], label2, label1);
 			break;
 		}
 		default:{
-			midcode tmp;
-			tmp.op = CMP_ID;
-			tmp.arg1 = label1;
-			tmp.arg2 = GenCode(child[0]);
-			midcode_list.push_back(tmp);
+			midcode tmp1, tmp2, gt;
+			tmp1.op = CMP;
+			tmp1.arg1 = GenCode(child[0]);
+			tmp1.arg2.type = BOOL;
+			tmp1.arg2.cb = 1;
+			midcode_list.push_back(tmp1);
+			tmp2.op = CMP_EQUAL;
+			tmp2.arg1 = label1;
+			midcode_list.push_back(tmp2);
+			tmp2.op = GOTO;
+			tmp2.arg1 = label2;
+			midcode_list.push_back(tmp2);
 			break;
 		}
 	}

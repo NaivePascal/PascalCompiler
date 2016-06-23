@@ -509,6 +509,39 @@ bool GenAss(midcode ptac, midcode tac, midcode ntac){
 		codeSection.append("mov", ret + "," + arg);
 		codeSection.append("xor",ret+" ,1");
 	}break;
+	case CMP_NOT:{
+		break;
+	}
+	case CMP_ID:{
+		codeSection.append("CMP", FindReg(tac.arg2),);
+		codeSection.append("JE", tac.arg1.cs);
+		codeSection.append("JMP", tac.arg1.cs);
+		break;
+	}
+	case CMP_EQUAL:{
+		codeSection.append("JE", tac.arg1.cs);
+		break;
+	}
+	case CMP_UNEQUAL:{
+		codeSection.append("JNE", tac.arg1.cs);
+		break;
+	}
+	case CMP_GT:{
+		codeSection.append("JGT", tac.arg1.cs);
+		break;
+	}
+	case CMP_GE:{
+		codeSection.append("JGE", tac.arg1.cs);
+		break;
+	}
+	case CMP_LT:{
+		codeSection.append("JLT", tac.arg1.cs);
+		break;
+	}
+	case CMP_LE:{
+		codeSection.append("JLE", tac.arg1.cs);
+		break;
+	}
 	}
 	return false;
 }
