@@ -53,6 +53,10 @@ struct Section {
 		sentences.push_back(sentence);
 	}
 
+	void remove() {
+		sentences.pop_back();
+	}
+
 	void append(string word1) {
 		sentences.push_back(Sentence(word1));
 	}
