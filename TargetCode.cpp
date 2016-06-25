@@ -415,120 +415,27 @@ string FindReg(Arg t,int i){
 bool GenAss(midcode ptac, midcode tac, midcode ntac){
 	char assemb[1000];
 	switch (tac.op){
+	case END:
+		codeSection.append(tac.arg1.cs, "ENDP");
+		break;
+	case FUNCTION:
+		// function declaration
+		codeSection.append(tac.arg1.cs, "PROC", "NEAR");
+		break;
+	case PROCEDURE:
+		// procedure declaration
+		codeSection.append(tac.arg1.cs, "PROC", "NEAR");
+		break;
+	case ROUTINE_BODY:
+		// Main process going
+		codeSection.append(".STARTUP");
+		break;
 	case GOTO:
 		codeSection.append("JMP", tac.arg1.cs);
 		break;
 	case LABEL:
 		codeSection.append(tac.arg1.cs,":");
 		break;
-	case CMP:
-		//###############################
-
-		//lzt--int
-		codeSection.append("CMP", FindReg(tac.arg1,1), FindReg(tac.arg2,2));
-		//lzt--real
-		//codeSection.append("fld", arg1);
-		//codeSection.append("fcom", arg2);
-
-		break;
-	case ROUTINE_BODY:
-		// Main process going
-		codeSection.append(".STARTUP");
-		break;
-	case RET:
-		// Call back
-		//#########################################################
-		//Have to judge that it is a function or procedure
-		//so that we can know if we need to return value
-
-		codeSection.append("RET");
-		break;
-	case CALL:
-		if (tac.arg1.type == SYS_PROC){
-
-		}
-		else if (tac.arg1.type == SYS_FUNCT){
-
-		}
-		else{
-			codeSection.append("CALL", tac.arg1.cs);
-		}
-		break;
-	case END:
-		codeSection.append(tac.arg1.cs,"ENDP");
-	case FUNCTION:
-		// function declaration
-		codeSection.append(tac.arg1.cs,"PROC","NEAR");
-		break;
-	case PROCEDURE:
-		// procedure declaration
-		codeSection.append(tac.arg1.cs, "PROC", "NEAR");
-		break;
-	case ASSIGN:
-		// assign an value to another simple value#####################################
-		codeSection.append("MOV", FindReg(tac.result,1), FindReg(tac.arg1,2));
-		break;
-	case ASSIGN_STMT:
-
-		break;
-	case PARAM:
-		codeSection.append("PUSH", FindReg(tac.arg1, 1));
-		break;
-
-	//lzt - compare
-	case GE:
-	case GT:
-	case LE:
-	case LT:
-	case EQUAL:
-	case UNEQUAL: {
-		string  ret;
-		//is int
-		intCompare(ret, tac.op);
-		//is real
-		realCompare(ret, tac.op);
-	}break;
-
-	//lzt - calculate
-	case OR:
-	case AND:
-	case PLUS:
-	case MINUS:
-	case MUL:
-	case DIV:
-	case MOD: {
-		string arg1, arg2, ret;
-		//is int
-		if (tac.arg1.id.symbolType == FUNC){
-
-		}
-		else if (tac.arg1.id.type.is_record){
-
-		}
-		else if (tac.arg1.id.type.base.is_array){
-
-		}
-		else if (tac.arg1.id.type.base.index.type == ENUM_T){
-
-		}
-		else if (tac.arg1.id.type.base.index.type == RANGE_T){
-
-		}
-		else if (tac.arg1.id.type.base.index.type == INT_T || tac.arg1.id.type.base.index.type == BOOL_T){
-			
-		}
-		else if (tac.arg1.id.type.base.index.type == REAL_T){
-
-		}
-		intCalculation(arg1, arg2, ret, tac.op);
-		//is real
-		realCalculation( arg1, arg2, ret,tac.op);
-	}break;
-	case NOT: {
-		string arg, ret;
-		codeSection.append("mov", ret + "," + arg);
-		codeSection.append("xor",ret+" ,1");
-	}break;
 	case CMP_EQUAL:{
 		codeSection.append("JE", tac.arg1.cs);
 		break;
@@ -553,15 +460,163 @@ bool GenAss(midcode ptac, midcode tac, midcode ntac){
 		codeSection.append("JLE", tac.arg1.cs);
 		break;
 	}
+	//Haven't finsh
+	case CMP:
+		//###############################
+
+		//lzt--int
+		codeSection.append("CMP", FindReg(tac.arg1,1), FindReg(tac.arg2,2));
+		//lzt--real
+		//codeSection.append("fld", arg1);
+		//codeSection.append("fcom", arg2);
+
+		break;
+	case RET:{
+		// Call back
+		string ret;
+		//#########################################################
+		//Have to judge that it is a function or procedure
+		//so that we can know if we need to return value
+		codeSection.append("PUSH", ret);
+		codeSection.append("RET");
+		break;
+	}
+	case CALL:
+		if (tac.arg1.type == SYS_PROC){
+
+		}
+		else if (tac.arg1.type == SYS_FUNCT){
+
+		}
+		else{
+			codeSection.append("CALL", tac.arg1.cs);
+		}
+		break;
+	case ASSIGN:
+		// assign an value to another simple value#####################################
+		codeSection.append("MOV", FindReg(tac.result,1), FindReg(tac.arg1,2));
+		break;
+	case ASSIGN_STMT:
+
+		break;
+	case PARAM:
+		codeSection.append("PUSH", FindReg(tac.arg1, 1));
+		break;
+
+	//lzt - compare
+	case GE:
+	case GT:
+	case LE:
+	case LT:
+	case EQUAL:
+	case UNEQUAL: {
+		codeSection.append("MOV eax dword ptr [", tac.arg1.cs, "]");
+		codeSection.append("MOV ebx dword ptr [", tac.arg2.cs, "]");
+		codeSection.append("CMP eax", "ebx");
+		string  ret;
+		//is int
+		intCompare(ret, tac.op);
+		//is real
+		realCompare(ret, tac.op);
+	}break;
+
+	//lzt - calculate
+	case OR:
+	case AND:
+	case PLUS:
+	case MINUS:
+	case MUL:
+	case DIV:
+	case MOD: {
+		string arg1, arg2, ret;
+		//is int
+		intCalculation(arg1, arg2, ret, tac.op);
+		//is real
+		realCalculation( arg1, arg2, ret,tac.op);
+	}break;
+	case NOT: {
+		string arg, ret;
+		codeSection.append("mov", ret + "," + arg);
+		codeSection.append("xor", ret+" ,1");
+	}break;
 	}
 	return false;
 }
 
 /// zrz : according TAC generate x86 asembly code:drive function
-void GenTargetCode(const vector<midcode>&) {
-	for (int i = 1; i < midcode_list.size()-1; i++) {
+void GenTargetCode() {
+	int i;
+	GenAss(midcode_list[0], midcode_list[0], midcode_list[1]);
+	for (i = 1; i < midcode_list.size()-1; i++) {
 		if (GenAss(midcode_list[i-1], midcode_list[i], midcode_list[i+1])) {
 			// pop sth to end a block
 		}
 	}
+	GenAss(midcode_list[i-1], midcode_list[i], midcode_list[i]);
+	for (int i = 0; i < codeSection.sentences.size(); i++){
+		cout << codeSection.sentences[i] << endl;
+	}
+}
+
+
+string GenId(Arg t, int i) {
+	Symbol symbol = t.id;
+	switch (symbol.symbolType){
+	case SymbolType::DATA: {
+		Type type = symbol.type;
+
+		int addr = symbol.addr;
+		int level = 0;// symbol.level;
+		int lower = 0;
+		int offset = 0;
+		if (type.is_record) {
+			//record
+			vector<string> fields = type.fields;
+		}
+		else {
+			Base b = type.base;
+			if (b.is_array) {
+				//array
+				if (b.index.type == SimpleType::RANGE_T)
+					lower = b.index.range.first;
+				else
+					lower = 0;
+			}
+			else {
+				//simple type
+				Simple s = b.index;
+				codeSection.append("mov", "esi,", "ecx");
+				while (level) {
+					codeSection.append("mov", "eax,", "[esi]");
+					codeSection.append("mov", "esi,", "eax");
+					level--;
+				}
+				codeSection.append("add", "esi,", "edi");
+				switch (s.type)
+				{
+				case SimpleType::REAL_T: {
+					//real
+					codeSection.append("mov", "eax,", "dword ptr[esi]");
+				}
+				case SimpleType::BOOL_T: 
+				case SimpleType::CHAR_T: 
+				case SimpleType::INT_T:
+				case SimpleType::ENUM_T:
+				case SimpleType::RANGE_T: {
+					codeSection.append("mov", "eax,", "[esi]");
+				}
+				}
+			}
+		}
+	}
+	case SymbolType::FUNC: {
+		//function
+		Type ret = symbol.func.returnType;
+
+	}
+	case SymbolType::PROC: {
+
+	}
+	}
+
 }

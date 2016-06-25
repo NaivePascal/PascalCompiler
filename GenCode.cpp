@@ -362,7 +362,7 @@ Arg GenOpr(nodeType* pnode){
         break;
 		case FUNCTION_DECL:{
 			arg1 = GenOpr(child[0]);
-			GenOpr(child[1]);
+			tmp.arg1 = GenOpr(child[1]);
 			tmp.op = RET;
 			midcode_list.push_back(tmp);
 			tmp.op = END;
@@ -454,7 +454,7 @@ Arg GenOpr(nodeType* pnode){
 		case PROC_STMT:
 			//No parameter
 			if (pnode->opr.nops == 1){
-				tmp.op = PROCEDURE;
+				tmp.op = PROC_STMT;
 				tmp.arg1 = GenCode(child[0]);
 			}
 			//Parameter require
@@ -472,7 +472,7 @@ Arg GenOpr(nodeType* pnode){
 						midcode_list.push_back(tmp);
 					}
 				}
-				tmp.op = PROCEDURE;
+				tmp.op = CALL;
 				tmp.arg1 = GenCode(child[0]);
 			}
 			midcode_list.push_back(tmp);
@@ -689,6 +689,7 @@ Arg GenOpr(nodeType* pnode){
 			tmp.result.temporary = true;
 			tmps++;
 			midcode_list.push_back(tmp);
+			res = tmp.result;
         break;
         /// Array Index
 		case LB:
@@ -844,6 +845,8 @@ int Gen_Drive(nodeType*  root,const char * outputfile){
 	exit_scope();
 
 	printTAC();
+	GenTargetCode();
+
     //size_param = leaveScope();
 
 

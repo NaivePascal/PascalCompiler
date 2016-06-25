@@ -4,6 +4,7 @@
 #include <vector>
 #include "Parser.h"
 #include "symbol.h"
+#include "TargetCode.h"
 /* Macro that checks for a malloc error */
 #define CHECK_MEM_ERROR(name) {if (name == NULL) { \
 				 printf("Memory allocation error\n"); \

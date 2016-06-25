@@ -77,7 +77,7 @@ struct Section {
 	}
 };
 
-void GenTargetCode(const vector<midcode>&);
+void GenTargetCode();
 void declare(string name, nodeType *node);
 
 //lzt:real number calculation
