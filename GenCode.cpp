@@ -381,6 +381,9 @@ Arg GenOpr(nodeType* pnode){
 			GenOpr(child[1]);
 			tmp.op = RET;
 			midcode_list.push_back(tmp);
+			tmp.op = END;
+			tmp.arg1 = arg1;
+			midcode_list.push_back(tmp);
 			string key = child[0]->opr.op[0]->id.sValue;
 			gen_symbol_table.insert({ key, exit_scope() });
 			preScope = "!main";

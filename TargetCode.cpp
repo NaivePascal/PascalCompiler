@@ -155,6 +155,7 @@ void writeArg(const string& arg, int type) {
 	//invoke crt_printf, addr fmtlist, area, area2
 	switch (type) {
 		case INTEGER: {
+			codeSection.append("mov", "eax,"+arg);
 			codeSection.append("invoke","crt_printf,addr intFmt,"+arg);
 		}break;
 		case REAL: {
@@ -684,7 +685,9 @@ bool GenAss(midcode ptac, midcode tac, midcode ntac, int i){
 		string ret;
 		//Have to judge that it is a function or procedure
 		//so that we can know if we need to return value
-		codeSection.append("PUSH", FindArgReg(tac.arg1));
+		if (tac.arg1.func == FUNC) {
+			codeSection.append("PUSH", FindArgReg(tac.arg1));
+		}
 		codeSection.append("RET");
 		break;
 	}
