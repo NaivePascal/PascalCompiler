@@ -10,6 +10,7 @@
 using namespace std;
 
 #define DEBUG
+extern bool GenCodePhrase;
 
 using namespace std;
 int array_size(nodeType* node);

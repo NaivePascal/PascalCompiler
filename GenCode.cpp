@@ -317,6 +317,8 @@ Arg GenOpr(nodeType* pnode){
         case NAME_LIST:
         break;
         case VAR_DECL_LIST:
+			GenOpr(child[0]);
+			GenOpr(child[1]);
         break;
 		case VAR_DECL:{
 			//hdj
@@ -833,12 +835,14 @@ void printTAC(){
 int Gen_Drive(nodeType*  root,const char * outputfile){
     int size_param;
     char buf[100000];
+	
+	GenCodePhrase = true; //hdj:start data section insertion
 
 	enter_scope();
 	GenCode(root);
 	gen_symbol_table.insert({ "!main", exit_scope() });
-
 	printTAC();
+
 	GenTargetCode();
 
     //size_param = leaveScope();

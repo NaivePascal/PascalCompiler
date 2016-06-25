@@ -29,7 +29,7 @@ Space typeSpace(int simpleType)
 
 void declare(string name, nodeType *node)
 {
-	Space space;
+	Space space = SDWORD;
 	string valuestr = "?";
 	if (node->type == typeType) {
 		space = typeSpace(node->tp.type);
@@ -66,6 +66,7 @@ void declare(string name, nodeType *node)
 				//support simple type temporarily
 				assert(types[i]->type == typeType);
 				declare(varName, types[i]);
+				return;
 			}
 		}
 		else if (node->opr.oper == FUNCTION_HEAD) {
@@ -123,8 +124,11 @@ void declare(string name, nodeType *node)
 
 void printTargetCode(ostream & os)
 {
+	puts("-----ASM------");
 	os << ".data" << endl;
 	os << dataSection;
+	os << ".code" << endl;
+	os << codeSection;
 }
 
 void insertIOFormatlist(){
@@ -717,18 +721,18 @@ bool GenAss(midcode ptac, midcode tac, midcode ntac, int i){
 /// zrz : according TAC generate x86 asembly code:drive function
 void GenTargetCode() {
 	int i;
-	GenAss(midcode_list[0], midcode_list[0], midcode_list[1],0);
-	for (i = 1; i < midcode_list.size()-1; i++) {
-		if (GenAss(midcode_list[i-1], midcode_list[i], midcode_list[i+1],i)) {
+	GenAss(midcode_list[0], midcode_list[0], midcode_list[1], 0);
+	for (i = 1; i < midcode_list.size() - 1; i++) {
+		if (GenAss(midcode_list[i - 1], midcode_list[i], midcode_list[i + 1], i)) {
 			// pop sth to end a block
 		}
 	}
 	GenAss(midcode_list[i - 1], midcode_list[i], midcode_list[i], i);
 	codeSection.append(".EXIT", "");
 	codeSection.append("END", "");
-	for (int i = 0; i < codeSection.sentences.size(); i++){
-		cout << codeSection.sentences[i] << endl;
-	}
+	//for (int i = 0; i < codeSection.sentences.size(); i++) {
+	//	cout << codeSection.sentences[i] << endl;
+	//}
 }
 
 

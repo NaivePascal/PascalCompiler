@@ -102,7 +102,8 @@ program			: program_head  routine  DOT{
 					printSymbolTable();
 					Gen_Drive(syntaxTree, "output.txt");
 					//puts("---Target Code---");
-					//printTargetCode(cout);
+					GenTargetCode();
+					printTargetCode(cout);
 
 					//hdj
 					//program ends, exit scope

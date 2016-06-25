@@ -1,7 +1,8 @@
 #include "symbol.h"
-int level=0;
+int level=-1;
 vector<Scope> symbol_table_stack;
 string message;
+bool GenCodePhrase = false;
 string Simple::toString() {
 		switch (type) {
 		case INT_T:return "int";
@@ -161,7 +162,10 @@ int type_space(nodeType *node) {
 void insert(char *name, nodeType* node) {
 	//test data section
 	//declare(name, node);
-
+	if (level == 1 && GenCodePhrase) {
+		//global variable
+		declare(name, node);
+	}
 	int addr = symbol_table_stack.back().address;
 	map<string, Symbol> &table = symbol_table_stack.back().symbol_table;
 	Symbol newSymbol(node, addr);
@@ -212,6 +216,7 @@ void enter_scope() {
 Scope exit_scope() {
 	Scope s = symbol_table_stack.back();
 	symbol_table_stack.pop_back();
+	level--;
 	return s;
 }
 
