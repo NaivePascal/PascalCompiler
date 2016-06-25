@@ -71,9 +71,11 @@ void declare(string name, nodeType *node)
 		}
 		else if (node->opr.oper == FUNCTION_HEAD) {
 			//return "<function>";
+			return;
 		}
 		else if (node->opr.oper == PROCEDURE_HEAD) {
 			//return "<procedure>";
+			return;
 		}
 	}
 	else if (node->type == typeCon) {
@@ -415,6 +417,9 @@ void intCompare(const string& ret, int type) {
 //vector<string> code_result;
 
 string FindArgReg(Arg t){
+	if (t.id.symbolType == FUNC) {
+		return "edx";
+	}
 	if (t.temporary){
 		if (t.cs == template1){
 			template1 = "free";

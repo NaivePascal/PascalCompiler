@@ -3,14 +3,15 @@ program funcTest;
 var
         i, j, k:integer;
 
-function Sum(a,b:integer): integer;
+procedure Sum(a,b:integer);
+var ret:integer;
 begin
-        Sum := a + b;
+        ret := a + b;
+        writeln(ret);
 end;
 
 begin
         i := 10;
         j := 20;
-        k := Sum(i,j) * 2;
-        write(k);
+        Sum(i,j);
 end.
