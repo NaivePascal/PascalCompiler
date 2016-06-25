@@ -29,7 +29,7 @@ Space typeSpace(int simpleType)
 
 void declare(string name, nodeType *node)
 {
-	Space space;
+	Space space = SDWORD;
 	string valuestr = "?";
 	if (node->type == typeType) {
 		space = typeSpace(node->tp.type);
@@ -66,6 +66,7 @@ void declare(string name, nodeType *node)
 				//support simple type temporarily
 				assert(types[i]->type == typeType);
 				declare(varName, types[i]);
+				return;
 			}
 		}
 		else if (node->opr.oper == FUNCTION_HEAD) {
