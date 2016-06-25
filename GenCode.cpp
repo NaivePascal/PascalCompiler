@@ -642,17 +642,18 @@ Arg GenOpr(nodeType* pnode){
 			tmp.op = (pnode->opr).oper;
 			tmp.result.cs = "tmp" + intToString(tmps); 
 			tmps++;
-			tmp.result.type = (type_equal(tp(SYS_TYPE_REAL),pnode->exp))?REAL:INTEGER;
 			tmp.result.temporary = true;
 			tmp.result.subr = preScope;
 			if (pnode->opr.nops == 2){
 				tmp.arg1 = GenCode(child[0]);
 				tmp.arg2 = GenCode(child[1]);
+				tmp.result.type = tmp.arg1.type;
 			}
 			else{
 				tmp.arg2 = GenCode(child[0]);
 				tmp.arg1.type = INTEGER;
 				tmp.arg1.ci = 0;
+				tmp.result.type = tmp.arg2.type;
 			}
 			midcode_list.push_back(tmp);
 			res = tmp.result;
