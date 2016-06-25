@@ -139,12 +139,12 @@ void printTargetCode(ostream & os)
 
 void insertIOFormatlist(){
 	dataSection.append("zero", "BYTE", "0");
-	dataSection.append("intFmt", "BYTE", "\"%d\", 0");
-	dataSection.append("charFmt", "BYTE", "\"%c\", 0");
-	dataSection.append("realFmt", "BYTE", "\"%lf\", 0");
-	dataSection.append("stringFmt", "BYTE", "\"%s\", 0");
-	dataSection.append("TrueSentence", "BYTE", "\"true\", 0");
-	dataSection.append("FalseSentence", "BYTE", "\"false\", 0");
+	dataSection.append("intFmt", "BYTE", "\"%d \", 0");
+	dataSection.append("charFmt", "BYTE", "\"%c \", 0");
+	dataSection.append("realFmt", "BYTE", "\"%lf \", 0");
+	dataSection.append("stringFmt", "BYTE", "\"%s \", 0");
+	dataSection.append("TrueSentence", "BYTE", "\"true \", 0");
+	dataSection.append("FalseSentence", "BYTE", "\"false \", 0");
 }
 
 #include <utility>
@@ -759,6 +759,7 @@ void GenTargetCode() {
 		}
 	}
 	GenAss(midcode_list[i - 1], midcode_list[i], midcode_list[i], i);
+	codeSection.append("invoke ExitProcess, 0");
 	codeSection.append("end start", "");
 	codeSection.append("END", "");
 	//for (int i = 0; i < codeSection.sentences.size(); i++){
