@@ -124,8 +124,17 @@ void declare(string name, nodeType *node)
 
 void printTargetCode(ostream & os)
 {
+	insertIOFormatlist();
+	os << ".686" << endl;
+	os << ".model flat, stdcall" << endl;
+	os << "option casemap : none" << endl;
+	os << "include msvcrt.inc" << endl;
+	os << "include kernel32.inc" << endl;
+	os << "includelib msvcrt.lib" << endl;
 	os << ".data" << endl;
 	os << dataSection;
+	os << ".code" << endl;
+	os << codeSection;
 }
 
 void insertIOFormatlist(){
@@ -563,7 +572,7 @@ bool GenAss(midcode ptac, midcode tac, midcode ntac, int i){
 		break;
 	case ROUTINE_BODY:
 		// Main process going
-		codeSection.append(".STARTUP");
+		codeSection.append("start:");
 		break;
 	case GOTO:
 		codeSection.append("JMP", tac.arg1.cs);
@@ -750,11 +759,11 @@ void GenTargetCode() {
 		}
 	}
 	GenAss(midcode_list[i - 1], midcode_list[i], midcode_list[i], i);
-	codeSection.append(".EXIT", "");
+	codeSection.append("end start", "");
 	codeSection.append("END", "");
-	for (int i = 0; i < codeSection.sentences.size(); i++){
-		cout << codeSection.sentences[i] << endl;
-	}
+	//for (int i = 0; i < codeSection.sentences.size(); i++){
+	//	cout << codeSection.sentences[i] << endl;
+	//}
 }
 
 
