@@ -123,8 +123,11 @@ void declare(string name, nodeType *node)
 
 void printTargetCode(ostream & os)
 {
+	puts("-----ASM------");
 	os << ".data" << endl;
 	os << dataSection;
+	os << ".code" << endl;
+	os << codeSection;
 }
 
 void insertIOFormatlist(){
@@ -712,9 +715,9 @@ void GenTargetCode() {
 		}
 	}
 	GenAss(midcode_list[i-1], midcode_list[i], midcode_list[i],i);
-	for (int i = 0; i < codeSection.sentences.size(); i++){
+	/*for (int i = 0; i < codeSection.sentences.size(); i++){
 		cout << codeSection.sentences[i] << endl;
-	}
+	}*/
 }
 
 
