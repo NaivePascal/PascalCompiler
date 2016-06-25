@@ -45,6 +45,7 @@ struct Arg{
     int type;
     bool temporary;
 	bool ifinsubroutine;
+	string subr;
 	int addr;
     int ci;
     double cr;
@@ -57,6 +58,7 @@ struct Arg{
 
 	Arg(){
 		type = OF;
+		subr = "";
 		temporary = false;
 		ifinsubroutine = false;
 		addr = 0;

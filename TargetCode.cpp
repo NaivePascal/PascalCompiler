@@ -12,6 +12,8 @@ Section codeSection;
 
 string spaceStr[4] = { "BYTE" ,"SDWORD", "REAL8", "DWORD"};
 extern int labels;
+string template1 = "free", template2 = "free";
+string xmm0 = "free", xmm1 = "free";
 
 void intCmpSection(const string& ret, const string& j);
 void realCmpSection(const string& ret, const string& constant);
@@ -326,21 +328,17 @@ void intCalculation(const string& arg1, const string& arg2, const string& ret, i
 	switch (type) {
 		case PLUS: {
 			codeSection.append("mov", ret + "," + arg1);
-			codeSection.append("mov", ret + "," + arg1);
-			codeSection.append("add",ret + "," + arg2);
+			codeSection.append("add", ret + "," + arg2);
 		}break;
 		case MINUS: {
-			codeSection.append("mov", ret + "," + arg1);
 			codeSection.append("mov", ret + "," + arg1);
 			codeSection.append("sub", ret + "," + arg2);
 		}break;
 		case AND: {
 			codeSection.append("mov", ret + "," + arg1);
-			codeSection.append("mov", ret + "," + arg1);
 			codeSection.append("and", ret + "," + arg2);
 		}break;
 		case OR: {
-			codeSection.append("mov", ret + "," + arg1);
 			codeSection.append("mov", ret + "," + arg1);
 			codeSection.append("sub", ret + "," + arg2);
 		}break;
@@ -406,13 +404,129 @@ void intCompare(const string& ret, int type) {
 
 //vector<string> code_result;
 
-string FindReg(Arg t,int i){
+string FindArgReg(Arg t){
+	if (t.temporary){
+		if (t.cs == template1){
+			template1 = "free";
+			return "eax";
+		}
+		else if (t.cs == template2){
+			template2 = "free";
+			return "ebx";
+		}
+	}
+	else if (t.type == ID){
+		if (t.subr == "!main"){
+			return "dword ptr [" + t.cs + "]";
+		}
+		else{
+	
+		}
+	}
+	else if (t.type == BOOL){
+		if (template1 == "free"){
+			codeSection.append("MOV eax," + intToString(t.cb));
+			return "eax";
+		}
+		else if (template2 == "free"){
+			codeSection.append("MOV ebx," + intToString(t.cb));
+			return "ebx";
+		}
+	}
+	else if (t.type == INTEGER){
+		if (template1 == "free"){
+			codeSection.append("MOV eax," + intToString(t.ci));
+			return "eax";
+		}
+		else if (template2 == "free"){
+			codeSection.append("MOV ebx," + intToString(t.ci));
+			return "ebx";
+		}
+	}
+	else if (t.type == CHAR){
+		if (template1 == "free"){
+			codeSection.append("MOV eax," + intToString(t.cc));
+			return "eax";
+		}
+		else if (template2 == "free"){
+			codeSection.append("MOV ebx," + intToString(t.cc));
+			return "ebx";
+		}
+	}
+	else if (t.type == REAL){
+
+	}
+	else if (t.type == STRING){
+
+	}
 	return "";
+}
+
+string FindResReg(Arg t){
+	if (t.temporary){
+		if (template1 == "free"){
+			template1 = t.cs;
+			return "eax";
+		}
+		else if (template2 == "free"){
+			template2 = t.cs;
+			return "ebx";
+		}
+	}
+	else if (t.subr == "!main"){
+		return "dword ptr [" + t.cs + "]";
+	}
+	else{
+
+	}
+	return "";
+}
+
+int FindType(Arg t){
+	Symbol symbol = t.id;
+	switch (symbol.symbolType){
+	case SymbolType::DATA: {
+		Type type = symbol.type;
+		int addr = symbol.addr;
+		int lower = 0;
+		int offset = 0;
+		if (type.is_record) {
+			//record
+		}
+		else {
+			Base b = type.base;
+			if (b.is_array) {
+				//array
+			}
+			else {
+				//simple type
+				Simple s = b.index;
+				switch (s.type)
+				{
+				case SimpleType::REAL_T: return REAL;
+				case SimpleType::BOOL_T: return BOOL;
+				case SimpleType::CHAR_T: return CHAR;
+				case SimpleType::INT_T: return INTEGER;
+				case SimpleType::ENUM_T: 
+				case SimpleType::RANGE_T:break;
+				}
+			}
+		}
+	}
+	case SymbolType::FUNC: {
+		//function
+
+	}
+	case SymbolType::PROC: {
+
+	}
+	}
+	return FALSE;
 }
 
 
 /// zrz : different type
-bool GenAss(midcode ptac, midcode tac, midcode ntac){
+bool GenAss(midcode ptac, midcode tac, midcode ntac, int i){
 	char assemb[1000];
 	switch (tac.op){
 	case END:
@@ -460,16 +574,76 @@ bool GenAss(midcode ptac, midcode tac, midcode ntac){
 		codeSection.append("JLE", tac.arg1.cs);
 		break;
 	}
+	//Near to finish
+	case READ:
+
+		break;
+	case CALL:
+		if (tac.arg1.type == SYS_PROC){
+			vector<pair<string, int>> vp;
+			while (midcode_list[--i].op == PARAM){
+			}
+			while (midcode_list[++i].op == PARAM){
+				codeSection.append("POP ecx");
+				vp.push_back(pair<string, int>(FindArgReg(midcode_list[i].arg1), FindType(midcode_list[i].arg1)));
+			}
+			if (tac.arg1.proc == SYS_PROC_WRITE){
+				sysProcWrite(vp);
+			}
+			else if (tac.arg1.proc == SYS_PROC_WRITELN){
+				sysProcwriteln(vp);
+			}
+		}
+		else if (tac.arg1.type == SYS_FUNCT){
+			//codeSection.append("POP ecx");
+			if (tac.arg1.func == SYS_FUNCT_SQRT){
+				sysFuncSqrt(FindArgReg(tac.arg2), FindResReg(tac.result));
+			}
+			else if (tac.arg1.func == SYS_FUNCT_SQR){
+				sysFuncSqr(FindArgReg(tac.arg2), FindResReg(tac.result));
+			}
+			else if (tac.arg1.func == SYS_FUNCT_ABS){
+				sysFuncAbs(tac.result.type,FindArgReg(tac.arg2), FindResReg(tac.result));
+			}
+			else if (tac.arg1.func == SYS_FUNCT_CHR){
+				sysFuncChr(FindArgReg(tac.arg2), FindResReg(tac.result));
+			}
+			else if (tac.arg1.func == SYS_FUNCT_PRED){
+				sysFuncPred(FindArgReg(tac.arg2), FindResReg(tac.result));
+			}
+			else if (tac.arg1.func == SYS_FUNCT_SUCC){
+				sysFuncSucc(FindArgReg(tac.arg2), FindResReg(tac.result));
+			}
+			else if (tac.arg1.func == SYS_FUNCT_ODD){
+				sysFuncOdd(FindArgReg(tac.arg2), FindResReg(tac.result));
+			}
+			else if (tac.arg1.func == SYS_FUNCT_ORD){
+				sysFuncOrd(FindArgReg(tac.arg2), FindResReg(tac.result));
+			}
+		}
+		else{
+			codeSection.append("CALL", tac.arg1.cs);
+			if (tac.result.temporary){
+				if (template1 == "free"){
+					template1 = tac.result.cs;
+					codeSection.append("POP", "eax");
+				}
+				else if (template2 == "free"){
+					template1 = tac.result.cs;
+					codeSection.append("POP", "ebx");
+
+				}
+			}
+		}
+		break;
 	//Haven't finsh
 	case CMP:
 		//###############################
-
 		//lzt--int
-		codeSection.append("CMP", FindReg(tac.arg1,1), FindReg(tac.arg2,2));
+		codeSection.append("CMP", FindArgReg(tac.arg1),",", FindArgReg(tac.arg2));
 		//lzt--real
 		//codeSection.append("fld", arg1);
 		//codeSection.append("fcom", arg2);
-
 		break;
 	case RET:{
 		// Call back
@@ -477,30 +651,19 @@ bool GenAss(midcode ptac, midcode tac, midcode ntac){
 		//#########################################################
 		//Have to judge that it is a function or procedure
 		//so that we can know if we need to return value
-		codeSection.append("PUSH", ret);
+		codeSection.append("PUSH", FindArgReg(tac.arg1));
 		codeSection.append("RET");
 		break;
 	}
-	case CALL:
-		if (tac.arg1.type == SYS_PROC){
-
-		}
-		else if (tac.arg1.type == SYS_FUNCT){
-
-		}
-		else{
-			codeSection.append("CALL", tac.arg1.cs);
-		}
-		break;
 	case ASSIGN:
 		// assign an value to another simple value#####################################
-		codeSection.append("MOV", FindReg(tac.result,1), FindReg(tac.arg1,2));
+		codeSection.append("MOV", FindResReg(tac.result), ",", FindArgReg(tac.arg1));
 		break;
 	case ASSIGN_STMT:
 
 		break;
 	case PARAM:
-		codeSection.append("PUSH", FindReg(tac.arg1, 1));
+		codeSection.append("PUSH", FindArgReg(tac.arg1));
 		break;
 
 	//lzt - compare
@@ -510,16 +673,13 @@ bool GenAss(midcode ptac, midcode tac, midcode ntac){
 	case LT:
 	case EQUAL:
 	case UNEQUAL: {
-		codeSection.append("MOV eax dword ptr [", tac.arg1.cs, "]");
-		codeSection.append("MOV ebx dword ptr [", tac.arg2.cs, "]");
-		codeSection.append("CMP eax", "ebx");
-		string  ret;
+		codeSection.append("CMP", FindArgReg(tac.arg1), ",", FindArgReg(tac.arg2));
+		string ret = (template1=="free")?"eax":((template2=="free")?"ebx":"error");
 		//is int
 		intCompare(ret, tac.op);
 		//is real
 		realCompare(ret, tac.op);
 	}break;
-
 	//lzt - calculate
 	case OR:
 	case AND:
@@ -528,15 +688,14 @@ bool GenAss(midcode ptac, midcode tac, midcode ntac){
 	case MUL:
 	case DIV:
 	case MOD: {
-		string arg1, arg2, ret;
 		//is int
-		intCalculation(arg1, arg2, ret, tac.op);
+		intCalculation(FindArgReg(tac.arg1), FindArgReg(tac.arg2), FindResReg(tac.result), tac.op);
 		//is real
-		realCalculation( arg1, arg2, ret,tac.op);
+		realCalculation(FindArgReg(tac.arg1), FindArgReg(tac.arg2), FindResReg(tac.result), tac.op);
 	}break;
 	case NOT: {
-		string arg, ret;
-		codeSection.append("mov", ret + "," + arg);
+		string arg = FindArgReg(tac.arg1), ret = FindResReg(tac.result);
+		codeSection.append("mov", ret+ "," + arg);
 		codeSection.append("xor", ret+" ,1");
 	}break;
 	}
@@ -546,27 +705,25 @@ bool GenAss(midcode ptac, midcode tac, midcode ntac){
 /// zrz : according TAC generate x86 asembly code:drive function
 void GenTargetCode() {
 	int i;
-	GenAss(midcode_list[0], midcode_list[0], midcode_list[1]);
+	GenAss(midcode_list[0], midcode_list[0], midcode_list[1],0);
 	for (i = 1; i < midcode_list.size()-1; i++) {
-		if (GenAss(midcode_list[i-1], midcode_list[i], midcode_list[i+1])) {
+		if (GenAss(midcode_list[i-1], midcode_list[i], midcode_list[i+1],i)) {
 			// pop sth to end a block
 		}
 	}
-	GenAss(midcode_list[i-1], midcode_list[i], midcode_list[i]);
+	GenAss(midcode_list[i-1], midcode_list[i], midcode_list[i],i);
 	for (int i = 0; i < codeSection.sentences.size(); i++){
 		cout << codeSection.sentences[i] << endl;
 	}
 }
 
 
-string GenId(Arg t, int i) {
+string JudgeId(Arg t, int i) {
 	Symbol symbol = t.id;
 	switch (symbol.symbolType){
 	case SymbolType::DATA: {
 		Type type = symbol.type;
-
 		int addr = symbol.addr;
-		int level = 0;// symbol.level;
 		int lower = 0;
 		int offset = 0;
 		if (type.is_record) {
@@ -618,5 +775,5 @@ string GenId(Arg t, int i) {
 
 	}
 	}
-
+	return "";
 }

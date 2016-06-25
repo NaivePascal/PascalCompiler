@@ -14,6 +14,7 @@ Arg ARG_KEYWORD_IF;
 FILE* codef = NULL;
 FILE* dataf = NULL;
 FILE* ff=NULL;
+string preScope = "!main";
 
 int labels = 0;
 int tmps = 0;
@@ -197,68 +198,7 @@ Arg GenId(nodeType* pnode){
 	res.type = ID;
 	res.id = lookupSymbol((pnode->id).sValue);
 	res.cs = (pnode->id).sValue;
-	/*
-	switch (symbol.symbolType){
-	case SymbolType::DATA: {
-		Type type = symbol.type;//¿‡–Õ
-		int addr = symbol.addr;//µÿ÷∑
-		if (type.is_record) {
-			//record
-			vector<string> fields = type.fields;
-		}
-		else {
-			Base b = type.base;
-			if (b.is_array) {
-				//array
-			}
-			else {
-				//simple type
-				Simple s = b.index;
-				switch (s.type)
-				{
-				case SimpleType::BOOL_T: {
-					//bool
-					res.type = BOOL;
-					break;
-				}
-				case SimpleType::CHAR_T: {
-					//char
-					res.type = CHAR;
-					break;
-				}
-				case SimpleType::INT_T: {
-					//int
-					res.type = INTEGER;
-					break;
-				}
-				case SimpleType::REAL_T: {
-					//real
-					res.type = REAL;
-					break;
-				}
-				case SimpleType::ENUM_T: {
-					//enum
-					res.type = ENUM;
-					break;
-				}
-				case SimpleType::RANGE_T: {
-					//subrange
-					res.type = RANGE_T;
-					break;
-				}
-				}
-			}
-		}
-	}
-	case SymbolType::FUNC:{
-		//function
-		Type ret = symbol.func.returnType;
-
-	}
-	case SymbolType::PROC: {
-
-	}
-	}*/
+	res.subr = preScope;
 	return res;
 }
 
@@ -370,10 +310,12 @@ Arg GenOpr(nodeType* pnode){
 			midcode_list.push_back(tmp);
 			string key = child[0]->opr.op[0]->id.sValue;
 			gen_symbol_table.insert({ key, exit_scope() });
+			preScope = "!main";
 		}break;
 		case FUNCTION_HEAD:{
 			//hdj: insert function
 			insert(child[0]->id.sValue, pnode);
+			preScope = child[0]->id.sValue;
 			enter_scope();
 			// zrz insert function label
 			tmps = 0;
@@ -395,10 +337,12 @@ Arg GenOpr(nodeType* pnode){
 			midcode_list.push_back(tmp);
 			string key = child[0]->opr.op[0]->id.sValue;
 			gen_symbol_table.insert({ key, exit_scope() });
+			preScope = "!main";
 		}break;
 		case PROCEDURE_HEAD:{
 			//hdj: insert function
 			insert(child[0]->id.sValue, pnode);
+			preScope = child[0]->id.sValue;
 			enter_scope();
 			tmps = 0;
 			tmp.op = PROCEDURE;
@@ -728,8 +672,17 @@ Arg GenOpr(nodeType* pnode){
 			midcode_list.push_back(tmp);
         break;
 		case SYS_FUNCT:
-			GenCode(child[1]);
-			GenCode(child[0]);
+			tmp.op = CALL;
+			tmp.arg1 = GenCode(child[0]);
+			tmp.arg2 = GenCode(child[1]);
+			tmp.result.cs = "tmp" + intToString(tmps);
+			tmps++;
+			midcode_list.push_back(tmp);
+		break;
+		case READ:
+			tmp.op = READ;
+			tmp.arg1 = GenCode(child[0]);
+			midcode_list.push_back(tmp);
 		break;
     }
 	if (tmp.arg1.type == 113)
@@ -841,8 +794,8 @@ int Gen_Drive(nodeType*  root,const char * outputfile){
     char buf[100000];
 
 	enter_scope();
-    GenCode(root);
-	exit_scope();
+	GenCode(root);
+	gen_symbol_table.insert({ "!main", exit_scope() });
 
 	printTAC();
 	GenTargetCode();
