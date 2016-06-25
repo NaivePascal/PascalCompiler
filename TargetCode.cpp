@@ -656,8 +656,16 @@ bool GenAss(midcode ptac, midcode tac, midcode ntac, int i){
 		break;
 	}
 	case ASSIGN:
-		// assign an value to another simple value#####################################
-		codeSection.append("MOV", FindResReg(tac.result), ",", FindArgReg(tac.arg1));
+		// assign an value to another simple value
+		if (tac.arg2.type==INTEGER)
+			codeSection.append("MOV", FindResReg(tac.result), ",", FindArgReg(tac.arg1));
+		else{
+			Arg arg;
+			arg.type = ID;
+			arg.subr = tac.arg1.subr;
+			arg.cs = 
+			codeSection.append("MOV", FindResReg(tac.result), ",", FindArgReg(arg));
+		}
 		break;
 	case ASSIGN_STMT:
 
@@ -676,9 +684,11 @@ bool GenAss(midcode ptac, midcode tac, midcode ntac, int i){
 		codeSection.append("CMP", FindArgReg(tac.arg1), ",", FindArgReg(tac.arg2));
 		string ret = (template1=="free")?"eax":((template2=="free")?"ebx":"error");
 		//is int
-		intCompare(ret, tac.op);
+		if(FindType(tac.arg1)==INTEGER)
+			intCompare(ret, tac.op);
 		//is real
-		realCompare(ret, tac.op);
+		else
+			realCompare(ret, tac.op);
 	}break;
 	//lzt - calculate
 	case OR:
@@ -689,9 +699,11 @@ bool GenAss(midcode ptac, midcode tac, midcode ntac, int i){
 	case DIV:
 	case MOD: {
 		//is int
-		intCalculation(FindArgReg(tac.arg1), FindArgReg(tac.arg2), FindResReg(tac.result), tac.op);
+		if (FindType(tac.arg1) == INTEGER)
+			intCalculation(FindArgReg(tac.arg1), FindArgReg(tac.arg2), FindResReg(tac.result), tac.op);
 		//is real
-		realCalculation(FindArgReg(tac.arg1), FindArgReg(tac.arg2), FindResReg(tac.result), tac.op);
+		else
+			realCalculation(FindArgReg(tac.arg1), FindArgReg(tac.arg2), FindResReg(tac.result), tac.op);
 	}break;
 	case NOT: {
 		string arg = FindArgReg(tac.arg1), ret = FindResReg(tac.result);

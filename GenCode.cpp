@@ -21,6 +21,38 @@ int tmps = 0;
 int mains = 0;
 
 //midcode_list
+void GenControl_case_exp(nodeType* pnode, Arg tv, Arg label){
+	nodeType** child = pnode->opr.op;
+	midcode tmp;
+	switch ((pnode->opr).oper){
+	case CASE_EXPR_LIST:
+		GenControl_case_exp(child[0], tv, label);
+		break;
+	case CASE_EXPR:{
+		Arg arg1;
+		midcode tmp1, tmp2;
+		tmp1.op = CMP;
+		tmp1.arg1 = GenCode(child[0]);
+		tmp1.arg2 = tv;
+		midcode_list.push_back(tmp1);
+		arg1.type = STRING;
+		arg1.cs = "L" + intToString(labels);
+		labels++;
+		tmp2.op = CMP_UNEQUAL;
+		tmp2.arg1 = arg1;
+		midcode_list.push_back(tmp2);
+		//stmt
+		GenCode(child[1]);
+		//insert label for new
+		tmp.op = LABEL;
+		tmp.arg1 = arg1;
+		midcode_list.push_back(tmp);
+		break;
+	}
+	}
+}
+
+
 
 /// Control flow function
 /// if
@@ -212,6 +244,18 @@ Arg GenOpr(nodeType* pnode){
 	nodeType** child = pnode->opr.op;
 	midcode tmp;
 	switch ((pnode->opr).oper){
+		case CASE:{
+			arg2 = GenCode(child[0]);
+			arg1.type = STRING;
+			arg1.cs = "L" + intToString(labels);
+			labels++;
+			GenControl_case_exp(child[1], arg2, arg1);
+			//insert label for end
+			tmp.op = LABEL;
+			tmp.arg1 = arg1;
+			midcode_list.push_back(tmp);
+			break;
+		}
 		case ROUTINE_BODY:
 			tmp.op = ROUTINE_BODY;
 			tmp.arg1.type = STRING;
@@ -554,15 +598,6 @@ Arg GenOpr(nodeType* pnode){
 			tmp.arg1 = arg3;
 			midcode_list.push_back(tmp);
         break;
-        case CASE:
-
-        break;
-        case CASE_EXPR_LIST:
-			
-        break;
-        case CASE_EXPR:
-
-        break;
         case EXPRESSION_LIST:
 
         break;
@@ -579,6 +614,7 @@ Arg GenOpr(nodeType* pnode){
 			tmps++;
 			tmp.result.type = BOOL;
 			tmp.result.temporary = true;
+			tmp.result.subr = preScope;
 			tmp.arg1 = GenCode(child[0]);
 			tmp.arg2 = GenCode(child[1]);
 			midcode_list.push_back(tmp);
@@ -590,6 +626,7 @@ Arg GenOpr(nodeType* pnode){
 			tmps++;
 			tmp.result.type = BOOL;
 			tmp.result.temporary = true;
+			tmp.result.subr = preScope;
 			tmp.arg1 = GenCode(child[0]);
 			midcode_list.push_back(tmp);
 			res = tmp.result;
@@ -605,6 +642,7 @@ Arg GenOpr(nodeType* pnode){
 			tmps++;
 			tmp.result.type = (type_equal(tp(SYS_TYPE_REAL),pnode->exp))?REAL:INTEGER;
 			tmp.result.temporary = true;
+			tmp.result.subr = preScope;
 			if (pnode->opr.nops == 2){
 				tmp.arg1 = GenCode(child[0]);
 				tmp.arg2 = GenCode(child[1]);
@@ -631,6 +669,7 @@ Arg GenOpr(nodeType* pnode){
 			tmp.result.id = tmp.arg1.id;
 			tmp.result.cs = "tmp" + intToString(tmps);
 			tmp.result.temporary = true;
+			tmp.result.subr = preScope;
 			tmps++;
 			midcode_list.push_back(tmp);
 			res = tmp.result;
@@ -642,6 +681,7 @@ Arg GenOpr(nodeType* pnode){
 			tmps++;
 			tmp.result.type = (type_equal(tp(SYS_TYPE_INTEGER), pnode->exp)) ? REAL : INTEGER;
 			tmp.result.temporary = true;
+			tmp.result.subr = preScope;
 			tmp.arg1 = GenId(child[0]);
 			tmp.arg2 = GenCode(child[1]);
 			midcode_list.push_back(tmp);
@@ -676,6 +716,7 @@ Arg GenOpr(nodeType* pnode){
 			tmp.arg1 = GenCode(child[0]);
 			tmp.arg2 = GenCode(child[1]);
 			tmp.result.cs = "tmp" + intToString(tmps);
+			tmp.result.subr = preScope;
 			tmps++;
 			midcode_list.push_back(tmp);
 		break;
