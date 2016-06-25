@@ -584,7 +584,8 @@ bool GenAss(midcode ptac, midcode tac, midcode ntac, int i){
 			while (midcode_list[--i].op == PARAM){
 			}
 			while (midcode_list[++i].op == PARAM){
-				codeSection.append("POP ecx");
+				//codeSection.append("POP ecx");
+				codeSection.remove();
 				vp.push_back(pair<string, int>(FindArgReg(midcode_list[i].arg1), FindType(midcode_list[i].arg1)));
 			}
 			if (tac.arg1.proc == SYS_PROC_WRITE){
@@ -595,7 +596,6 @@ bool GenAss(midcode ptac, midcode tac, midcode ntac, int i){
 			}
 		}
 		else if (tac.arg1.type == SYS_FUNCT){
-			//codeSection.append("POP ecx");
 			if (tac.arg1.func == SYS_FUNCT_SQRT){
 				sysFuncSqrt(FindArgReg(tac.arg2), FindResReg(tac.result));
 			}
@@ -711,7 +711,9 @@ void GenTargetCode() {
 			// pop sth to end a block
 		}
 	}
-	GenAss(midcode_list[i-1], midcode_list[i], midcode_list[i],i);
+	GenAss(midcode_list[i - 1], midcode_list[i], midcode_list[i], i);
+	codeSection.append(".EXIT", "");
+	codeSection.append("END", "");
 	for (int i = 0; i < codeSection.sentences.size(); i++){
 		cout << codeSection.sentences[i] << endl;
 	}
