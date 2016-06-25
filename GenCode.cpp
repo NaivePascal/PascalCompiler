@@ -843,8 +843,6 @@ int Gen_Drive(nodeType*  root,const char * outputfile){
 	gen_symbol_table.insert({ "!main", exit_scope() });
 	printTAC();
 
-	GenTargetCode();
-
     //size_param = leaveScope();
 
 

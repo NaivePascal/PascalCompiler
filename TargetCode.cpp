@@ -12,7 +12,7 @@ Section codeSection;
 
 string spaceStr[4] = { "BYTE" ,"SDWORD", "REAL8", "DWORD"};
 extern int labels;
-string template1 = "free", template2 = "free";
+string template1 = "free", template2 = "free", template3 = "free";
 string xmm0 = "free", xmm1 = "free";
 
 void intCmpSection(const string& ret, const string& j);
@@ -29,7 +29,7 @@ Space typeSpace(int simpleType)
 
 void declare(string name, nodeType *node)
 {
-	Space space = SDWORD;
+	Space space;
 	string valuestr = "?";
 	if (node->type == typeType) {
 		space = typeSpace(node->tp.type);
@@ -66,7 +66,6 @@ void declare(string name, nodeType *node)
 				//support simple type temporarily
 				assert(types[i]->type == typeType);
 				declare(varName, types[i]);
-				return;
 			}
 		}
 		else if (node->opr.oper == FUNCTION_HEAD) {
@@ -124,11 +123,8 @@ void declare(string name, nodeType *node)
 
 void printTargetCode(ostream & os)
 {
-	puts("-----ASM------");
 	os << ".data" << endl;
 	os << dataSection;
-	os << ".code" << endl;
-	os << codeSection;
 }
 
 void insertIOFormatlist(){
@@ -418,13 +414,17 @@ string FindArgReg(Arg t){
 			template2 = "free";
 			return "ebx";
 		}
+		else if (t.cs == template3){
+			template3 = "free";
+			return "ecx";
+		}
 	}
 	else if (t.type == ID){
 		if (t.subr == "!main"){
 			return "dword ptr [" + t.cs + "]";
 		}
 		else{
-	
+			return "[esp+" + intToString(t.id.addr*4)+"]";
 		}
 	}
 	else if (t.type == BOOL){
@@ -433,6 +433,10 @@ string FindArgReg(Arg t){
 			return "eax";
 		}
 		else if (template2 == "free"){
+			codeSection.append("MOV ebx," + intToString(t.cb));
+			return "ebx";
+		}
+		else if (template3 == "free"){
 			codeSection.append("MOV ebx," + intToString(t.cb));
 			return "ebx";
 		}
@@ -446,6 +450,10 @@ string FindArgReg(Arg t){
 			codeSection.append("MOV ebx," + intToString(t.ci));
 			return "ebx";
 		}
+		else if (template3 == "free"){
+			codeSection.append("MOV ebx," + intToString(t.ci));
+			return "ecx";
+		}
 	}
 	else if (t.type == CHAR){
 		if (template1 == "free"){
@@ -455,6 +463,10 @@ string FindArgReg(Arg t){
 		else if (template2 == "free"){
 			codeSection.append("MOV ebx," + intToString(t.cc));
 			return "ebx";
+		}
+		else if (template3 == "free"){
+			codeSection.append("MOV ebx," + intToString(t.cc));
+			return "ecx";
 		}
 	}
 	else if (t.type == REAL){
@@ -476,12 +488,16 @@ string FindResReg(Arg t){
 			template2 = t.cs;
 			return "ebx";
 		}
+		else if (template3 == "free"){
+			template3 = t.cs;
+			return "ecx";
+		}
 	}
 	else if (t.subr == "!main"){
 		return "dword ptr [" + t.cs + "]";
 	}
 	else{
-
+		return "[esp+" + intToString(t.id.addr*4) + "]";
 	}
 	return "";
 }
@@ -642,7 +658,6 @@ bool GenAss(midcode ptac, midcode tac, midcode ntac, int i){
 		break;
 	//Haven't finsh
 	case CMP:
-		//###############################
 		//lzt--int
 		codeSection.append("CMP", FindArgReg(tac.arg1),",", FindArgReg(tac.arg2));
 		//lzt--real
@@ -652,7 +667,6 @@ bool GenAss(midcode ptac, midcode tac, midcode ntac, int i){
 	case RET:{
 		// Call back
 		string ret;
-		//#########################################################
 		//Have to judge that it is a function or procedure
 		//so that we can know if we need to return value
 		codeSection.append("PUSH", FindArgReg(tac.arg1));
@@ -661,18 +675,25 @@ bool GenAss(midcode ptac, midcode tac, midcode ntac, int i){
 	}
 	case ASSIGN:
 		// assign an value to another simple value
-		if (tac.arg2.type==INTEGER)
-			codeSection.append("MOV", FindResReg(tac.result), ",", FindArgReg(tac.arg1));
+		if (tac.arg2.type == INTEGER){
+			if (tac.arg2.ci == 0)
+				codeSection.append("MOV", FindResReg(tac.result), ",", FindArgReg(tac.arg1));
+			else
+				codeSection.append("MOV", FindResReg(tac.result), ",", FindArgReg(tac.arg1) + "[" + FindArgReg(tac.arg1) + "]");
+		}
 		else{
 			Arg arg;
 			arg.type = ID;
 			arg.subr = tac.arg1.subr;
-			arg.cs = 
+			arg.cs = tac.arg1.cs + "." + tac.arg2.cs;
 			codeSection.append("MOV", FindResReg(tac.result), ",", FindArgReg(arg));
 		}
 		break;
 	case ASSIGN_STMT:
-
+		if (FindType(tac.arg1) == INTEGER)
+			codeSection.append("MOV", FindResReg(tac.result) + "[" + FindArgReg(tac.arg1) + "]", ",", FindArgReg(tac.arg1));
+		else if (FindType(tac.arg1) == REAL)
+			codeSection.append("MOVSD", FindResReg(tac.result) + "[" + FindArgReg(tac.arg1) + "]", ",", FindArgReg(tac.arg1));
 		break;
 	case PARAM:
 		codeSection.append("PUSH", FindArgReg(tac.arg1));
@@ -721,18 +742,18 @@ bool GenAss(midcode ptac, midcode tac, midcode ntac, int i){
 /// zrz : according TAC generate x86 asembly code:drive function
 void GenTargetCode() {
 	int i;
-	GenAss(midcode_list[0], midcode_list[0], midcode_list[1], 0);
-	for (i = 1; i < midcode_list.size() - 1; i++) {
-		if (GenAss(midcode_list[i - 1], midcode_list[i], midcode_list[i + 1], i)) {
+	GenAss(midcode_list[0], midcode_list[0], midcode_list[1],0);
+	for (i = 1; i < midcode_list.size()-1; i++) {
+		if (GenAss(midcode_list[i-1], midcode_list[i], midcode_list[i+1],i)) {
 			// pop sth to end a block
 		}
 	}
 	GenAss(midcode_list[i - 1], midcode_list[i], midcode_list[i], i);
 	codeSection.append(".EXIT", "");
 	codeSection.append("END", "");
-	//for (int i = 0; i < codeSection.sentences.size(); i++) {
-	//	cout << codeSection.sentences[i] << endl;
-	//}
+	for (int i = 0; i < codeSection.sentences.size(); i++){
+		cout << codeSection.sentences[i] << endl;
+	}
 }
 
 
