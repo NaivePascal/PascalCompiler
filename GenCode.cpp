@@ -348,7 +348,8 @@ Arg GenOpr(nodeType* pnode){
         break;
 		case FUNCTION_DECL:{
 			arg1 = GenOpr(child[0]);
-			tmp.arg1 = GenOpr(child[1]);
+			GenOpr(child[1]);
+			tmp.arg1 = arg1;
 			tmp.op = RET;
 			midcode_list.push_back(tmp);
 			tmp.op = END;
@@ -377,7 +378,7 @@ Arg GenOpr(nodeType* pnode){
 			res = tmp.arg1;
 		}break;
 		case PROCEDURE_DECL:{
-			GenOpr(child[0]);
+			arg1 = GenOpr(child[0]);
 			GenOpr(child[1]);
 			tmp.op = RET;
 			midcode_list.push_back(tmp);
@@ -403,6 +404,7 @@ Arg GenOpr(nodeType* pnode){
 			for (int i = 0; i < types.size(); i++) {
 				insert(parameters[i]->id.sValue, types[i]);
 			}
+			res = tmp.arg1;
 		}break;
         case PARA_DECL_LIST:
         break;
@@ -708,14 +710,14 @@ Arg GenOpr(nodeType* pnode){
         break;
         case ARGS_LIST:
 			tmp.op = PARAM;
+			tmp.arg1 = GenCode(child[1]);
+			midcode_list.push_back(tmp);
 			if (child[0]->opr.oper == ARGS_LIST)
 				GenCode(child[0]);
 			else{
 				tmp.arg1 = GenCode(child[0]);
 				midcode_list.push_back(tmp);
 			}
-			tmp.arg1 = GenCode(child[1]);
-			midcode_list.push_back(tmp);
         break;
 		case SYS_FUNCT:
 			tmp.op = CALL;

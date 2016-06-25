@@ -126,7 +126,7 @@ void declare(string name, nodeType *node)
 
 void printTargetCode(ostream & os)
 {
-	insertIOFormatlist();
+	
 	os << ".686" << endl;
 	os << ".model flat, stdcall" << endl;
 	os << "option casemap : none" << endl;
@@ -156,7 +156,7 @@ void writeArg(const string& arg, int type) {
 	switch (type) {
 		case INTEGER: {
 			codeSection.append("mov", "eax,"+arg);
-			codeSection.append("invoke","crt_printf,addr intFmt,"+arg);
+			codeSection.append("invoke","crt_printf,addr intFmt,eax");
 		}break;
 		case REAL: {
 			codeSection.append("invoke", "crt_printf,addr realFmt," + arg);
@@ -339,10 +339,11 @@ void realCompare(const string& ret, int type) {
 void intCalculation(const string& arg1, const string& arg2, const string& ret, int type) {
 	string opr;
 	switch (type) {
+		codeSection.append("push", "edx");
 		case PLUS: {
 			codeSection.append("mov", ret + "," + arg1);
 			codeSection.append("add", ret + "," + arg2);
-		}break;
+		}break; 
 		case MINUS: {
 			codeSection.append("mov", ret + "," + arg1);
 			codeSection.append("sub", ret + "," + arg2);
@@ -373,7 +374,9 @@ void intCalculation(const string& arg1, const string& arg2, const string& ret, i
 			codeSection.append("idiv", arg2);
 			codeSection.append("mov", ret + ",edx");
 		}break;
+		codeSection.append("pop", "edx");
 	}
+
 }
 
 void intCmpSection(const string& ret, const string& j) {
@@ -440,7 +443,7 @@ string FindArgReg(Arg t){
 			return "dword ptr [" + t.cs + "]";
 		}
 		else{
-			return "[esp+" + intToString(t.id.addr*4)+"]";
+			return "[esp+" + intToString(t.id.addr+4)+"]";
 		}
 	}
 	else if (t.type == BOOL){
@@ -495,6 +498,9 @@ string FindArgReg(Arg t){
 }
 
 string FindResReg(Arg t){
+	if (t.id.symbolType == FUNC){
+		return "edx";
+	}
 	if (t.temporary){
 		if (template1 == "free"){
 			template1 = t.cs;
@@ -513,7 +519,7 @@ string FindResReg(Arg t){
 		return "dword ptr [" + t.cs + "]";
 	}
 	else{
-		return "[esp+" + intToString(t.id.addr*4) + "]";
+		return "[esp+" + intToString(t.id.addr+4) + "]";
 	}
 	return "";
 }
@@ -685,7 +691,7 @@ bool GenAss(midcode ptac, midcode tac, midcode ntac, int i){
 		string ret;
 		//Have to judge that it is a function or procedure
 		//so that we can know if we need to return value
-		if (tac.arg1.func == FUNC) {
+		if (tac.arg1.id.symbolType == FUNC) {
 			codeSection.append("PUSH", FindArgReg(tac.arg1));
 		}
 		codeSection.append("RET");
@@ -708,9 +714,9 @@ bool GenAss(midcode ptac, midcode tac, midcode ntac, int i){
 		}
 		break;
 	case ASSIGN_STMT:
-		if (FindType(tac.arg1) == INTEGER)
+		if (tac.arg1.type == INTEGER)
 			codeSection.append("MOV", FindResReg(tac.result) + "[" + FindArgReg(tac.arg1) + "]", ",", FindArgReg(tac.arg1));
-		else if (FindType(tac.arg1) == REAL)
+		else if (tac.arg1.type == REAL)
 			codeSection.append("MOVSD", FindResReg(tac.result) + "[" + FindArgReg(tac.arg1) + "]", ",", FindArgReg(tac.arg1));
 		break;
 	case PARAM:

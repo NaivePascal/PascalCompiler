@@ -4,6 +4,7 @@
 #include <stdarg.h>
 #include <limits.h>
 #include <iostream>
+#include <fstream>
 #include "node.h"
 #include "Lexer.h"
 #include "Midcode.h"
@@ -103,11 +104,18 @@ program			: program_head  routine  DOT{
 					Gen_Drive(syntaxTree, "output.txt");
 					//puts("---Target Code---");
 					GenTargetCode();
+					ofstream outputAsm;
+					outputAsm.open("output.asm");
+					insertIOFormatlist();
+					printTargetCode(outputAsm);
 					printTargetCode(cout);
+					outputAsm.close();
 
 					//hdj
 					//program ends, exit scope
 					exit_scope();
+
+					exit(0);
 				}
 				;	
 						
